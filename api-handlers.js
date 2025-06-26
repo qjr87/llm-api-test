@@ -155,8 +155,9 @@ class APIHandler {
             const totalTime = (Date.now() - startTime) / 1000;
             const finalOutputSpeed = totalTokens / totalTime;
             
-            // 检查finish_reason，如果不是'stop'则判定为失败
-            const isSuccess = finishReason === 'stop';
+            // 检查finish_reason，'stop'和'length'都视为正常完成
+            const validFinishReasons = ['stop', 'length'];
+            const isSuccess = validFinishReasons.includes(finishReason);
             const status = isSuccess ? 'completed' : 'failed';
             const error = isSuccess ? null : `Invalid finish_reason: ${finishReason || 'missing'}`;
 
@@ -230,8 +231,9 @@ class APIHandler {
             const totalTime = (Date.now() - startTime) / 1000;
             const finalOutputSpeed = totalTokens / totalTime;
             
-            // 检查finish_reason，Gemini的正常完成状态是'STOP'
-            const isSuccess = finishReason === 'STOP';
+            // 检查finish_reason，Gemini的正常完成状态包括'STOP'和'MAX_TOKENS'
+            const validFinishReasons = ['STOP', 'MAX_TOKENS'];
+            const isSuccess = validFinishReasons.includes(finishReason);
             const status = isSuccess ? 'completed' : 'failed';
             const error = isSuccess ? null : `Invalid finish_reason: ${finishReason || 'missing'}`;
 
@@ -278,9 +280,7 @@ class APIHandler {
             errors.push('At least one prompt is required');
         }
 
-        if (prompts && prompts.length > 5) {
-            errors.push('Maximum 5 prompts allowed');
-        }
+        // No limit on number of prompts
 
         return errors;
     }

@@ -106,6 +106,17 @@ class APITester {
                     }
                 });
             }
+            
+            // Set default prompts if prompts field is empty
+            const promptsElement = document.getElementById('prompts');
+            if (promptsElement && (!promptsElement.value || promptsElement.value.trim() === '')) {
+                const defaultPrompts = [
+                    'Explain the concept of "quantum entanglement" to a high school student, including its potential applications.',
+                    'Discuss the primary ethical challenges posed by the rapid development of autonomous vehicles.',
+                    'Write a short story about a sentient AI that discovers a hidden message within the internet\'s oldest data archives.'
+                ];
+                promptsElement.value = defaultPrompts.join('\n');
+            }
         } catch (e) {
             console.warn('Failed to load saved config:', e);
         }
@@ -883,7 +894,7 @@ class APITester {
             html += `
                 <div class="history-record">
                     <div class="history-header">
-                        <h3>Record #${index + 1}</h3>
+                        <h3><span data-i18n="record">Record</span> #${index + 1}</h3>
                         <div class="history-meta">
                             <span class="test-date">
                                 <strong data-i18n="testDate">Test Date:</strong> ${record.testDate}
@@ -892,7 +903,7 @@ class APITester {
                                 <strong data-i18n="apiEndpoint">API Endpoint:</strong> ${record.apiUrl}
                             </span>
                             <span class="protocol">
-                                <strong>Protocol:</strong> ${record.protocol}
+                                <strong data-i18n="protocol">Protocol:</strong> ${record.protocol}
                             </span>
                         </div>
                     </div>
@@ -901,7 +912,7 @@ class APITester {
                             <span><strong data-i18n="totalModels">Total Models:</strong> ${record.summary.totalModels}</span>
                             <span><strong data-i18n="totalTests">Total Tests:</strong> ${record.summary.totalTests}</span>
                             <span><strong data-i18n="successfulTests">Successful Tests:</strong> ${record.summary.successfulTests}</span>
-                            <span><strong>Success Rate:</strong> ${((record.summary.successfulTests / record.summary.totalTests) * 100).toFixed(1)}%</span>
+                            <span><strong data-i18n="successRate">Success Rate:</strong> ${((record.summary.successfulTests / record.summary.totalTests) * 100).toFixed(1)}%</span>
                         </div>
                     </div>
                     <div class="history-details">
@@ -923,7 +934,7 @@ class APITester {
                     <tr>
                         <td>${model}</td>
                         <td>${stats.avgFirstTokenTime ? stats.avgFirstTokenTime.toFixed(2) + 'ms' : '-'}</td>
-                        <td>${stats.avgOutputSpeed ? stats.avgOutputSpeed.toFixed(2) + ' tokens/s' : '-'}</td>
+                        <td>${stats.avgOutputSpeed ? stats.avgOutputSpeed.toFixed(2) + ' ' + (i18n ? i18n.t('tokensPerSecond') : 'tokens/s') : '-'}</td>
                         <td>${stats.successRate.toFixed(1)}%</td>
                     </tr>
                 `;
@@ -938,14 +949,19 @@ class APITester {
         });
         
         historyContent.innerHTML = html;
+        
+        // 重新应用国际化翻译
+        if (window.i18n) {
+            window.i18n.updateTexts();
+        }
     }
 
     // 确认清除历史记录
     confirmClearHistory() {
-        if (confirm('Are you sure you want to clear all history records? This action cannot be undone.')) {
+        if (confirm(i18n ? i18n.t('confirmClearHistory') : 'Are you sure you want to clear all history records? This action cannot be undone.')) {
             this.clearHistoryRecords();
             this.renderHistoryRecords();
-            alert('History records have been cleared.');
+            alert(i18n ? i18n.t('historyCleared') : 'History records have been cleared.');
         }
     }
 }
