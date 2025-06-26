@@ -1,114 +1,102 @@
-# LLM API Test
+# Herramienta de Prueba de API LLM
 
-Una herramienta para probar y comparar el rendimiento de diferentes APIs de modelos de lenguaje de gran tamaño.
+**Read this in other languages**: [English](README.md) | [中文](README_CN.md) | [العربية](README_AR.md) | [Deutsch](README_DE.md) | [Français](README_FR.md) | [日本語](README_JA.md)
+
+Una herramienta para probar y comparar el rendimiento de diferentes APIs de Modelos de Lenguaje Grande.
 
 ## Características
 
-- **Soporte multi-API**: Compatible con API de OpenAI y API de Google Gemini
-- **Métricas de rendimiento**: Mide el tiempo del primer token y la velocidad de salida
-- **Pruebas por lotes**: Prueba múltiples modelos y prompts simultáneamente
-- **Soporte multiidioma**: Disponible en inglés, chino, francés, japonés, alemán, español y árabe
-- **Resultados en tiempo real**: Visualización en vivo del progreso de las pruebas y resultados
-- **Diseño responsivo**: Funciona en escritorio y dispositivos móviles
-- **Almacenamiento local**: Guarda automáticamente tu configuración
+- 🚀 **Soporte Multi-API**: Compatible con OpenAI, Google Gemini y otras APIs LLM principales
+- ⚡ **Pruebas de Rendimiento**: Mide el tiempo de respuesta del primer token, velocidad de salida y tasa de éxito
+- 📊 **Visualización de Datos**: Visualización en tiempo real de resultados de pruebas y estadísticas
+- 🌍 **Soporte Multiidioma**: Disponible en inglés, chino, francés, japonés, alemán, español y árabe
+- 📱 **Diseño Responsivo**: Se adapta a dispositivos de escritorio y móviles
+- 💾 **Registros de Historial**: Guardado automático del historial de pruebas con opciones de exportación de datos
+- ☁️ **Cloudflare Workers**: Soporta despliegue en plataformas de computación en el borde
 
-## Inicio rápido
+## Inicio Rápido
 
-### Desarrollo local
+### Configuración Local
 
-1. Clonar el repositorio:
+1. Clonar el repositorio
 ```bash
-git clone https://github.com/qjr87/llm-api-test.git
+git clone https://github.com/your-username/llm-api-test.git
 cd llm-api-test
 ```
 
-2. Instalar dependencias:
+2. Iniciar un servidor local
 ```bash
-npm install
+python -m http.server 8000
 ```
 
-3. Iniciar servidor de desarrollo local:
-```bash
-npm run dev
-```
-
-4. Abrir tu navegador y visitar `http://localhost:8000`
+3. Abrir el navegador y navegar a `http://localhost:8000`
 
 ### Configuración de API
 
-1. **APIs compatibles con OpenAI**:
-   - URL de API: `https://api.openai.com/v1/chat/completions`
-   - Clave de API: Tu clave de API de OpenAI (comienza con `sk-`)
-   - Modelos: `gpt-3.5-turbo`, `gpt-4`, `gpt-4-turbo`, etc.
+1. Seleccionar el proveedor de API que deseas probar en el área de configuración
+2. Introducir la clave API y endpoint correspondientes
+3. Establecer parámetros de prueba (rondas, concurrencia, etc.)
+4. Hacer clic en el botón "Iniciar Prueba"
 
-2. **API de Google Gemini**:
-   - URL de API: `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent`
-   - Clave de API: Tu clave de API de Google AI
-   - Modelos: `gemini-pro`, `gemini-pro-vision`, etc.
+## APIs Soportadas
 
-## APIs soportadas
-
-- **OpenAI**: GPT-3.5, GPT-4, GPT-4 Turbo
+- **OpenAI**: Modelos de la serie GPT-3.5, GPT-4
 - **Google Gemini**: Gemini Pro, Gemini Pro Vision
-- **APIs compatibles**: Cualquier endpoint de API compatible con OpenAI
+- **APIs Personalizadas**: Soporte para otras APIs compatibles con el formato OpenAI
 
 ## Despliegue
 
-### Cloudflare Workers
+### Despliegue en Cloudflare Workers
 
-1. Construir el worker:
+1. Instalar Wrangler CLI
 ```bash
-npm run build
+npm install -g wrangler
 ```
 
-2. Desplegar en Cloudflare Workers:
+2. Iniciar sesión en Cloudflare
 ```bash
-npm run deploy
+wrangler login
 ```
 
-3. Configurar tu dominio personalizado (opcional)
+3. Construir y desplegar
+```bash
+node build-worker.js
+wrangler deploy
+```
 
-## Estructura del proyecto
+Para instrucciones detalladas de despliegue, consulte [DEPLOYMENT.md](DEPLOYMENT.md)
+
+## Estructura del Proyecto
 
 ```
 llm-api-test/
-├── index.html          # Archivo HTML principal
-├── app.js             # Lógica de la aplicación
-├── api-handlers.js    # Clases de manejo de API
-├── styles.css         # Estilos
-├── i18n.js           # Internacionalización
-├── worker.js         # Script de Cloudflare Worker
-├── worker-complete.js # Worker completo con assets integrados
-├── build-worker.js   # Script de construcción
-├── package.json      # Dependencias y scripts
-├── wrangler.toml     # Configuración de Cloudflare Workers
-└── README.md         # Documentación
+├── index.html          # Página principal
+├── app.js             # Lógica principal de la aplicación
+├── api-handlers.js    # Manejadores de API
+├── styles.css         # Hoja de estilos
+├── i18n.js           # Configuración de internacionalización
+├── worker.js         # Script de Cloudflare Workers
+├── build-worker.js   # Script de construcción de Workers
+└── wrangler.toml     # Configuración de Cloudflare
 ```
 
-## Stack tecnológico
+## Stack Tecnológico
 
-- **Frontend**: Vanilla JavaScript, HTML5, CSS3
+- **Frontend**: HTML/CSS/JavaScript nativo
 - **Despliegue**: Cloudflare Workers
-- **Herramientas de construcción**: Node.js, Wrangler CLI
-- **APIs**: API de OpenAI, API de Google Gemini
+- **APIs**: Soporte para múltiples APIs LLM
+- **Internacionalización**: Soporte multiidioma
 
 ## Contribuir
 
-1. Hacer fork del repositorio
-2. Crear tu rama de característica (`git checkout -b feature/amazing-feature`)
-3. Hacer commit de tus cambios (`git commit -m 'Add some amazing feature'`)
-4. Hacer push a la rama (`git push origin feature/amazing-feature`)
+¡Las contribuciones son bienvenidas! No dudes en enviar Issues y Pull Requests.
+
+1. Hacer fork del proyecto
+2. Crear tu rama de características (`git checkout -b feature/AmazingFeature`)
+3. Hacer commit de tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Hacer push a la rama (`git push origin feature/AmazingFeature`)
 5. Abrir un Pull Request
 
 ## Licencia
 
-Este proyecto está licenciado bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles.
-
-## Contacto
-
-- GitHub: [@qjr87](https://github.com/qjr87)
-- Enlace del proyecto: [https://github.com/qjr87/llm-api-test](https://github.com/qjr87/llm-api-test)
-
----
-
-**Nota**: Esta herramienta es para propósitos de prueba y comparación. Por favor, asegúrate de cumplir con los términos de servicio de las APIs que estés probando.
+Licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles

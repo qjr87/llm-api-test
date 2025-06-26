@@ -1,114 +1,102 @@
-# LLM API Test
+# LLM API テストツール
 
-異なる大規模言語モデルAPIのパフォーマンスをテストし比較するためのツール。
+**Read this in other languages**: [English](README.md) | [中文](README_CN.md) | [العربية](README_AR.md) | [Deutsch](README_DE.md) | [Español](README_ES.md) | [Français](README_FR.md)
+
+異なる大規模言語モデルAPIのパフォーマンスをテストし比較するためのツールです。
 
 ## 機能
 
-- **マルチAPI対応**: OpenAI APIとGoogle Gemini APIに対応
-- **パフォーマンス指標**: 最初のトークン時間と出力速度を測定
-- **バッチテスト**: 複数のモデルとプロンプトを同時にテスト
-- **多言語対応**: 英語、中国語、フランス語、日本語、ドイツ語、スペイン語、アラビア語に対応
-- **リアルタイム結果**: テストの進行状況と結果をライブ表示
-- **レスポンシブデザイン**: デスクトップとモバイルデバイスで動作
-- **ローカルストレージ**: 設定を自動保存
+- 🚀 **マルチAPI対応**: OpenAI、Google Gemini、その他の主要なLLM APIと互換性があります
+- ⚡ **パフォーマンステスト**: 最初のトークンの応答時間、出力速度、成功率を測定します
+- 📊 **データ可視化**: テスト結果と統計のリアルタイム表示
+- 🌍 **多言語サポート**: 英語、中国語、フランス語、日本語、ドイツ語、スペイン語、アラビア語で利用可能
+- 📱 **レスポンシブデザイン**: デスクトップとモバイルデバイスに対応
+- 💾 **履歴記録**: テスト履歴の自動保存とデータエクスポートオプション
+- ☁️ **Cloudflare Workers**: エッジコンピューティングプラットフォームへのデプロイをサポート
 
 ## クイックスタート
 
-### ローカル開発
+### ローカルセットアップ
 
-1. リポジトリをクローン:
+1. リポジトリをクローン
 ```bash
-git clone https://github.com/qjr87/llm-api-test.git
+git clone https://github.com/your-username/llm-api-test.git
 cd llm-api-test
 ```
 
-2. 依存関係をインストール:
+2. ローカルサーバーを起動
 ```bash
-npm install
+python -m http.server 8000
 ```
 
-3. ローカル開発サーバーを起動:
-```bash
-npm run dev
-```
-
-4. ブラウザで `http://localhost:8000` にアクセス
+3. ブラウザを開いて `http://localhost:8000` にアクセス
 
 ### API設定
 
-1. **OpenAI互換API**:
-   - API URL: `https://api.openai.com/v1/chat/completions`
-   - API キー: OpenAI APIキー（`sk-`で始まる）
-   - モデル: `gpt-3.5-turbo`, `gpt-4`, `gpt-4-turbo`など
+1. 設定エリアでテストしたいAPIプロバイダーを選択
+2. 対応するAPIキーとエンドポイントを入力
+3. テストパラメータを設定（ラウンド数、並行性など）
+4. 「テスト開始」ボタンをクリック
 
-2. **Google Gemini API**:
-   - API URL: `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent`
-   - API キー: Google AI APIキー
-   - モデル: `gemini-pro`, `gemini-pro-vision`など
+## サポートされているAPI
 
-## 対応API
+- **OpenAI**: GPT-3.5、GPT-4シリーズモデル
+- **Google Gemini**: Gemini Pro、Gemini Pro Vision
+- **カスタムAPI**: OpenAI形式と互換性のある他のAPIをサポート
 
-- **OpenAI**: GPT-3.5, GPT-4, GPT-4 Turbo
-- **Google Gemini**: Gemini Pro, Gemini Pro Vision
-- **互換API**: OpenAI互換のAPIエンドポイント
+## デプロイメント
 
-## デプロイ
+### Cloudflare Workersデプロイメント
 
-### Cloudflare Workers
-
-1. ワーカーをビルド:
+1. Wrangler CLIをインストール
 ```bash
-npm run build
+npm install -g wrangler
 ```
 
-2. Cloudflare Workersにデプロイ:
+2. Cloudflareにログイン
 ```bash
-npm run deploy
+wrangler login
 ```
 
-3. カスタムドメインを設定（オプション）
+3. ビルドとデプロイ
+```bash
+node build-worker.js
+wrangler deploy
+```
+
+詳細なデプロイメント手順については、[DEPLOYMENT.md](DEPLOYMENT.md)を参照してください
 
 ## プロジェクト構造
 
 ```
 llm-api-test/
-├── index.html          # メインHTMLファイル
-├── app.js             # アプリケーションロジック
-├── api-handlers.js    # API処理クラス
-├── styles.css         # スタイリング
-├── i18n.js           # 国際化
-├── worker.js         # Cloudflare Workerスクリプト
-├── worker-complete.js # インライン化されたアセットを含む完全なワーカー
-├── build-worker.js   # ビルドスクリプト
-├── package.json      # 依存関係とスクリプト
-├── wrangler.toml     # Cloudflare Workers設定
-└── README.md         # ドキュメント
+├── index.html          # メインページ
+├── app.js             # メインアプリケーションロジック
+├── api-handlers.js    # APIハンドラー
+├── styles.css         # スタイルシート
+├── i18n.js           # 国際化設定
+├── worker.js         # Cloudflare Workersスクリプト
+├── build-worker.js   # Workersビルドスクリプト
+└── wrangler.toml     # Cloudflare設定
 ```
 
 ## 技術スタック
 
-- **フロントエンド**: Vanilla JavaScript, HTML5, CSS3
-- **デプロイ**: Cloudflare Workers
-- **ビルドツール**: Node.js, Wrangler CLI
-- **API**: OpenAI API, Google Gemini API
+- **フロントエンド**: ネイティブHTML/CSS/JavaScript
+- **デプロイメント**: Cloudflare Workers
+- **API**: 複数のLLM APIをサポート
+- **国際化**: 多言語サポート
 
 ## 貢献
 
-1. リポジトリをフォーク
-2. 機能ブランチを作成 (`git checkout -b feature/amazing-feature`)
-3. 変更をコミット (`git commit -m 'Add some amazing feature'`)
-4. ブランチにプッシュ (`git push origin feature/amazing-feature`)
-5. プルリクエストを開く
+貢献を歓迎します！IssueやPull Requestをお気軽に提出してください。
+
+1. プロジェクトをフォーク
+2. 機能ブランチを作成 (`git checkout -b feature/AmazingFeature`)
+3. 変更をコミット (`git commit -m 'Add some AmazingFeature'`)
+4. ブランチにプッシュ (`git push origin feature/AmazingFeature`)
+5. Pull Requestを開く
 
 ## ライセンス
 
-このプロジェクトはMITライセンスの下でライセンスされています - 詳細は[LICENSE](LICENSE)ファイルを参照してください。
-
-## 連絡先
-
-- GitHub: [@qjr87](https://github.com/qjr87)
-- プロジェクトリンク: [https://github.com/qjr87/llm-api-test](https://github.com/qjr87/llm-api-test)
-
----
-
-**注意**: このツールはテストと比較を目的としています。テストするAPIの利用規約に従ってください。
+MITライセンス - 詳細は[LICENSE](LICENSE)ファイルを参照してください

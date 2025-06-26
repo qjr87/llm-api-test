@@ -1,114 +1,102 @@
-# LLM API Test
+# LLM API Test Tool
+
+**Read this in other languages**: [English](README.md) | [中文](README_CN.md) | [العربية](README_AR.md) | [Español](README_ES.md) | [Français](README_FR.md) | [日本語](README_JA.md)
 
 Ein Tool zum Testen und Vergleichen der Leistung verschiedener Large Language Model APIs.
 
 ## Funktionen
 
-- **Multi-API-Unterstützung**: Kompatibel mit OpenAI API und Google Gemini API
-- **Leistungsmetriken**: Messung der ersten Token-Zeit und Ausgabegeschwindigkeit
-- **Batch-Tests**: Teste mehrere Modelle und Prompts gleichzeitig
-- **Mehrsprachige Unterstützung**: Verfügbar in Englisch, Chinesisch, Französisch, Japanisch, Deutsch, Spanisch und Arabisch
-- **Echtzeit-Ergebnisse**: Live-Anzeige von Testfortschritt und Ergebnissen
-- **Responsives Design**: Funktioniert auf Desktop und mobilen Geräten
-- **Lokaler Speicher**: Speichert Ihre Konfiguration automatisch
+- 🚀 **Multi-API-Unterstützung**: Kompatibel mit OpenAI, Google Gemini und anderen wichtigen LLM-APIs
+- ⚡ **Leistungstests**: Misst die Antwortzeit des ersten Tokens, Ausgabegeschwindigkeit und Erfolgsrate
+- 📊 **Datenvisualisierung**: Echtzeitanzeige von Testergebnissen und Statistiken
+- 🌍 **Mehrsprachige Unterstützung**: Verfügbar in Englisch, Chinesisch, Französisch, Japanisch, Deutsch, Spanisch und Arabisch
+- 📱 **Responsives Design**: Passt sich an Desktop- und Mobilgeräte an
+- 💾 **Verlaufsdatensätze**: Automatisches Speichern der Testhistorie mit Datenexportoptionen
+- ☁️ **Cloudflare Workers**: Unterstützt die Bereitstellung auf Edge-Computing-Plattformen
 
 ## Schnellstart
 
-### Lokale Entwicklung
+### Lokale Einrichtung
 
-1. Repository klonen:
+1. Repository klonen
 ```bash
-git clone https://github.com/qjr87/llm-api-test.git
+git clone https://github.com/your-username/llm-api-test.git
 cd llm-api-test
 ```
 
-2. Abhängigkeiten installieren:
+2. Lokalen Server starten
 ```bash
-npm install
+python -m http.server 8000
 ```
 
-3. Lokalen Entwicklungsserver starten:
-```bash
-npm run dev
-```
-
-4. Browser öffnen und `http://localhost:8000` besuchen
+3. Browser öffnen und zu `http://localhost:8000` navigieren
 
 ### API-Konfiguration
 
-1. **OpenAI-kompatible APIs**:
-   - API-URL: `https://api.openai.com/v1/chat/completions`
-   - API-Schlüssel: Ihr OpenAI API-Schlüssel (beginnt mit `sk-`)
-   - Modelle: `gpt-3.5-turbo`, `gpt-4`, `gpt-4-turbo`, etc.
-
-2. **Google Gemini API**:
-   - API-URL: `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent`
-   - API-Schlüssel: Ihr Google AI API-Schlüssel
-   - Modelle: `gemini-pro`, `gemini-pro-vision`, etc.
+1. Wählen Sie den API-Anbieter aus, den Sie im Konfigurationsbereich testen möchten
+2. Geben Sie den entsprechenden API-Schlüssel und Endpunkt ein
+3. Testparameter festlegen (Runden, Parallelität usw.)
+4. Klicken Sie auf die Schaltfläche "Test starten"
 
 ## Unterstützte APIs
 
-- **OpenAI**: GPT-3.5, GPT-4, GPT-4 Turbo
+- **OpenAI**: GPT-3.5, GPT-4 Serie Modelle
 - **Google Gemini**: Gemini Pro, Gemini Pro Vision
-- **Kompatible APIs**: Jeder OpenAI-kompatible API-Endpunkt
+- **Benutzerdefinierte APIs**: Unterstützung für andere APIs, die mit dem OpenAI-Format kompatibel sind
 
 ## Bereitstellung
 
-### Cloudflare Workers
+### Cloudflare Workers Bereitstellung
 
-1. Worker erstellen:
+1. Wrangler CLI installieren
 ```bash
-npm run build
+npm install -g wrangler
 ```
 
-2. Auf Cloudflare Workers bereitstellen:
+2. Bei Cloudflare anmelden
 ```bash
-npm run deploy
+wrangler login
 ```
 
-3. Ihre benutzerdefinierte Domain konfigurieren (optional)
+3. Erstellen und bereitstellen
+```bash
+node build-worker.js
+wrangler deploy
+```
+
+Detaillierte Bereitstellungsanweisungen finden Sie in [DEPLOYMENT.md](DEPLOYMENT.md)
 
 ## Projektstruktur
 
 ```
 llm-api-test/
-├── index.html          # Haupt-HTML-Datei
-├── app.js             # Anwendungslogik
-├── api-handlers.js    # API-Behandlungsklassen
-├── styles.css         # Styling
-├── i18n.js           # Internationalisierung
-├── worker.js         # Cloudflare Worker-Skript
-├── worker-complete.js # Vollständiger Worker mit eingebetteten Assets
-├── build-worker.js   # Build-Skript
-├── package.json      # Abhängigkeiten und Skripte
-├── wrangler.toml     # Cloudflare Workers-Konfiguration
-└── README.md         # Dokumentation
+├── index.html          # Hauptseite
+├── app.js             # Hauptanwendungslogik
+├── api-handlers.js    # API-Handler
+├── styles.css         # Stylesheet
+├── i18n.js           # Internationalisierungskonfiguration
+├── worker.js         # Cloudflare Workers Skript
+├── build-worker.js   # Workers Build-Skript
+└── wrangler.toml     # Cloudflare-Konfiguration
 ```
 
-## Tech-Stack
+## Tech Stack
 
-- **Frontend**: Vanilla JavaScript, HTML5, CSS3
+- **Frontend**: Natives HTML/CSS/JavaScript
 - **Bereitstellung**: Cloudflare Workers
-- **Build-Tools**: Node.js, Wrangler CLI
-- **APIs**: OpenAI API, Google Gemini API
+- **APIs**: Unterstützung für mehrere LLM-APIs
+- **Internationalisierung**: Mehrsprachige Unterstützung
 
 ## Mitwirken
 
-1. Repository forken
-2. Feature-Branch erstellen (`git checkout -b feature/amazing-feature`)
-3. Änderungen committen (`git commit -m 'Add some amazing feature'`)
-4. Zum Branch pushen (`git push origin feature/amazing-feature`)
+Beiträge sind willkommen! Zögern Sie nicht, Issues und Pull Requests einzureichen.
+
+1. Projekt forken
+2. Feature-Branch erstellen (`git checkout -b feature/AmazingFeature`)
+3. Änderungen committen (`git commit -m 'Add some AmazingFeature'`)
+4. Zum Branch pushen (`git push origin feature/AmazingFeature`)
 5. Pull Request öffnen
 
 ## Lizenz
 
-Dieses Projekt ist unter der MIT-Lizenz lizenziert - siehe die [LICENSE](LICENSE)-Datei für Details.
-
-## Kontakt
-
-- GitHub: [@qjr87](https://github.com/qjr87)
-- Projekt-Link: [https://github.com/qjr87/llm-api-test](https://github.com/qjr87/llm-api-test)
-
----
-
-**Hinweis**: Dieses Tool dient Test- und Vergleichszwecken. Bitte stellen Sie sicher, dass Sie die Nutzungsbedingungen der APIs einhalten, die Sie testen.
+MIT-Lizenz - siehe [LICENSE](LICENSE) Datei für Details
