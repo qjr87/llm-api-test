@@ -8,7 +8,9 @@
 
 **🚀 A comprehensive tool for testing and comparing Large Language Model API performance**
 
-[English](README.md) | [中文](README_CN.md) | [العربية](README_AR.md) | [Deutsch](README_DE.md) | [Español](README_ES.md) | [Français](README_FR.md) | [日本語](README_JA.md)
+## 🌐 [🚀 Live Demo - Try it Now!](https://llmtested.com)
+
+**Languages:** [English](README.md) | [中文](README_CN.md) | [العربية](README_AR.md) | [Deutsch](README_DE.md) | [Español](README_ES.md) | [Français](README_FR.md) | [日本語](README_JA.md)
 
 </div>
 
@@ -33,12 +35,10 @@ LLM API Test is a powerful, web-based tool designed to benchmark and compare the
 - **Multilingual Interface**: 7 languages supported
 - **Responsive Design**: Works on desktop and mobile
 - **Real-time Results**: Live performance monitoring
-- **Data Export**: CSV/JSON export capabilities
 - **History Tracking**: Persistent test records
 
 ### ☁️ Deployment Options
 - **Local Development**: Simple HTTP server setup
-- **Cloudflare Workers**: Edge computing deployment
 - **Static Hosting**: Compatible with any static host
 
 ## 🚀 Quick Start
@@ -100,29 +100,6 @@ Models: "gemini-pro"
 
 ## 🚀 Deployment
 
-### Cloudflare Workers (Recommended)
-
-Deploy to Cloudflare's edge network for global performance:
-
-1. **Install Wrangler CLI**
-   ```bash
-   npm install -g wrangler
-   ```
-
-2. **Authenticate with Cloudflare**
-   ```bash
-   wrangler login
-   ```
-
-3. **Configure and Deploy**
-   ```bash
-   # Build the worker script
-   node build-worker.js
-   
-   # Deploy to Cloudflare
-   wrangler deploy
-   ```
-
 ### Static Hosting
 
 Deploy to any static hosting service:
@@ -155,9 +132,6 @@ llm-api-test/
 ├── 🔌 api-handlers.js    # API protocol implementations
 ├── 🎨 styles.css         # Responsive UI styling
 ├── 🌍 i18n.js           # Internationalization & language support
-├── ☁️ worker.js         # Cloudflare Workers deployment script
-├── 🔧 build-worker.js   # Worker build automation
-├── ⚙️ wrangler.toml     # Cloudflare configuration
 └── 📜 LICENSE           # MIT License
 ```
 
@@ -183,7 +157,6 @@ llm-api-test/
 - **Mobile-First**: Responsive design principles
 
 ### Deployment
-- **Cloudflare Workers**: Edge computing platform
 - **Static Hosting**: Universal compatibility
 - **CDN Ready**: Global content distribution
 
