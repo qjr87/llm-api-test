@@ -1,0 +1,26 @@
+name = "llm-api-test"
+main = "worker-complete.js"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[env.production]
+name = "llm-api-test-prod"
+
+[env.staging]
+name = "llm-api-test-staging"
+
+# Environment variables (set these in Cloudflare dashboard or via wrangler secret)
+[vars]
+ENVIRONMENT = "production"
+
+# Optional: KV namespace for storing test results
+# [[kv_namespaces]]
+# binding = "TEST_RESULTS"
+# id = "your-kv-namespace-id"
+# preview_id = "your-preview-kv-namespace-id"
+
+# Optional: R2 bucket for file storage
+# [[r2_buckets]]
+# binding = "FILES"
+# bucket_name = "llm-test-files"
+# preview_bucket_name = "llm-test-files-preview"
