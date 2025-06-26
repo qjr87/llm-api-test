@@ -8,8 +8,7 @@
 
 **🚀 A comprehensive tool for testing and comparing Large Language Model API performance**
 
-## 🌐 [🚀 Live Demo - Try it Now!](https://llmtested.com)
-## [https://llmtested.com](https://llmtested.com)
+## 🌐 [🚀 Live Demo - Try it Now!](https://llmapitest.com)
 
 **Languages:** [English](README.md) | [中文](README_CN.md) | [العربية](README_AR.md) | [Deutsch](README_DE.md) | [Español](README_ES.md) | [Français](README_FR.md) | [日本語](README_JA.md)
 
@@ -46,6 +45,7 @@ LLM API Test is a powerful, web-based tool designed to benchmark and compare the
 
 ### Prerequisites
 - Modern web browser (Chrome, Firefox, Safari, Edge)
+- Node.js and npm installed
 - API keys for the services you want to test
 
 ### Local Development
@@ -56,13 +56,16 @@ LLM API Test is a powerful, web-based tool designed to benchmark and compare the
    cd llm-api-test
    ```
 
-2. **Start a local server**
+2. **Install dependencies and start the server**
+   ```bash
+   npm install
+   npm start
+   ```
+
+   **Alternative methods:**
    ```bash
    # Using Python 3
    python -m http.server 8000
-   
-   # Using Node.js
-   npx serve .
    
    # Using PHP
    php -S localhost:8000

@@ -1,0 +1,32 @@
+{
+  "name": "llm-api-test",
+  "version": "1.0.0",
+  "description": "A comprehensive tool for testing and comparing Large Language Model API performance",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve . -p 8000",
+    "dev": "npx serve . -p 8000 --live",
+    "build": "echo 'No build step required for static site'",
+    "test": "echo 'No tests specified'"
+  },
+  "keywords": [
+    "llm",
+    "api",
+    "test",
+    "benchmark",
+    "openai",
+    "gemini",
+    "ai",
+    "performance"
+  ],
+  "author": "qjr87",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/qjr87/llm-api-test.git"
+  },
+  "homepage": "https://llmtested.com",
+  "devDependencies": {
+    "serve": "^14.2.1"
+  }
+}
