@@ -9,7 +9,6 @@
 **🚀 A comprehensive tool for testing and comparing Large Language Model API performance**
 
 ## 🌐 [🚀 Live Demo - Try it Now!](https://llmtested.com)
-## [https://llmtested.com](https://llmtested.com)
 
 **Languages:** [English](README.md) | [中文](README_CN.md) | [العربية](README_AR.md) | [Deutsch](README_DE.md) | [Español](README_ES.md) | [Français](README_FR.md) | [日本語](README_JA.md)
 
