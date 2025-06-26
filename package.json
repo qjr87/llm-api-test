@@ -1,0 +1,31 @@
+{
+  "name": "llm-api-test",
+  "version": "1.0.0",
+  "description": "A tool for testing and comparing the performance of different Large Language Model APIs",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "build": "node build-worker.js",
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev"
+  },
+  "keywords": [
+    "llm",
+    "api",
+    "test",
+    "performance",
+    "openai",
+    "gemini",
+    "cloudflare",
+    "workers"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/llm-api-test.git"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
