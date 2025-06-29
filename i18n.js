@@ -2,6 +2,7 @@
 const translations = {
     en: {
         title: "llm api test",
+        toolDescription: "Compare performance across multiple AI model API providers and models with comprehensive testing and analytics.",
         configuration: "Configuration",
         protocol: "Protocol",
         apiUrl: "API URL",
@@ -15,7 +16,9 @@ const translations = {
         prompt: "Prompt",
         round: "Round",
         firstTokenTime: "First Token (ms)",
+        firstTokenTooltip: "Time from request start to receiving the first token of the response",
         outputSpeed: "Output Speed (t/s)",
+        outputSpeedTooltip: "Rate of token generation measured in tokens per second (TPS). Higher values indicate faster text generation",
         result: "Result",
         error: "Error",
         status: "Status",
@@ -47,6 +50,21 @@ const translations = {
         showHistory: "Show History",
         clearHistory: "Clear History",
         historyEmpty: "No history records found",
+        
+        // Performance Metrics Explanation
+        metricsExplanation: "Performance Metrics Explanation",
+        firstTokenTitle: "First Token",
+        firstTokenDesc: "Time from request sent to receiving the first token of the response. Lower values indicate faster response initiation.",
+        outputSpeedTitle: "Output Speed",
+        outputSpeedDesc: "Rate of token generation measured in tokens per second (TPS). Higher values indicate faster text generation.",
+        totalTimeTitle: "Total Time",
+        totalTimeDesc: "Complete duration from request initiation to response completion. Includes network latency and processing time.",
+        throughputTitle: "Throughput",
+        throughputDesc: "Overall processing efficiency measured as total tokens divided by total time. Indicates model's sustained performance.",
+        latencyTitle: "Latency",
+        latencyDesc: "Network and processing delay before response begins. Critical for real-time applications and user experience.",
+        reliabilityTitle: "Reliability",
+        reliabilityDesc: "Success rate and consistency of API responses. Higher reliability indicates more stable service performance.",
         historyCleared: "History records cleared",
         testDate: "Test Date",
         apiEndpoint: "API Endpoint",
@@ -59,6 +77,7 @@ const translations = {
     },
     zh: {
         title: "AI API 性能测试器",
+        toolDescription: "对比多个AI模型API提供商和模型的性能，提供全面的测试和分析。",
         configuration: "配置",
         protocol: "协议",
         apiUrl: "API 地址",
@@ -72,7 +91,9 @@ const translations = {
         prompt: "提示词",
         round: "轮次",
         firstTokenTime: "首字响应 (ms)",
+        firstTokenTooltip: "从请求开始到接收到响应第一个token的时间",
         outputSpeed: "输出速度 (t/s)",
+        outputSpeedTooltip: "令牌生成速率，以每秒令牌数(TPS)衡量。数值越高表示文本生成越快",
         result: "结果",
         error: "异常",
         status: "状态",
@@ -104,6 +125,21 @@ const translations = {
         showHistory: "显示历史",
         clearHistory: "清除历史",
         historyEmpty: "没有找到历史记录",
+        
+        // 性能指标解释
+        metricsExplanation: "性能指标解释",
+        firstTokenTitle: "首字响应",
+        firstTokenDesc: "从发送请求到接收到响应第一个令牌的时间。数值越低表示响应启动越快。",
+        outputSpeedTitle: "输出速度",
+        outputSpeedDesc: "令牌生成速率，以每秒令牌数(TPS)衡量。数值越高表示文本生成越快。",
+        totalTimeTitle: "总耗时",
+        totalTimeDesc: "从请求发起到响应完成的完整持续时间。包括网络延迟和处理时间。",
+        throughputTitle: "吞吐量",
+        throughputDesc: "整体处理效率，以总令牌数除以总时间衡量。表示模型的持续性能。",
+        latencyTitle: "延迟",
+        latencyDesc: "响应开始前的网络和处理延迟。对实时应用和用户体验至关重要。",
+        reliabilityTitle: "可靠性",
+        reliabilityDesc: "API响应的成功率和一致性。可靠性越高表示服务性能越稳定。",
         historyCleared: "历史记录已清除",
         testDate: "测试日期",
         apiEndpoint: "API 接口",
@@ -116,6 +152,7 @@ const translations = {
     },
     fr: {
         title: "Testeur de Performance API IA",
+        toolDescription: "Comparez les performances de plusieurs fournisseurs d'API et modèles IA avec des tests et analyses complets.",
         configuration: "Configuration",
         protocol: "Protocole",
         apiUrl: "URL de l'API",
@@ -129,7 +166,9 @@ const translations = {
         prompt: "Invite",
         round: "Tour",
         firstTokenTime: "Premier token (ms)",
+        firstTokenTooltip: "Temps depuis le début de la requête jusqu'à la réception du premier token de la réponse",
         outputSpeed: "Vitesse de sortie (t/s)",
+        outputSpeedTooltip: "Taux de génération de tokens mesuré en tokens par seconde (TPS). Des valeurs plus élevées indiquent une génération de texte plus rapide",
         result: "Résultat",
         error: "Erreur",
         status: "Statut",
@@ -172,6 +211,7 @@ const translations = {
     },
     ja: {
         title: "AI API パフォーマンステスター",
+        toolDescription: "複数のAIモデルAPIプロバイダーとモデルのパフォーマンスを包括的なテストと分析で比較。",
         configuration: "設定",
         protocol: "プロトコル",
         apiUrl: "API URL",
@@ -185,7 +225,9 @@ const translations = {
         prompt: "プロンプト",
         round: "ラウンド",
         firstTokenTime: "初回トークン (ms)",
+        firstTokenTooltip: "リクエスト開始からレスポンスの最初のトークンを受信するまでの時間",
         outputSpeed: "出力速度 (t/s)",
+        outputSpeedTooltip: "1秒あたりのトークン数（TPS）で測定されるトークン生成率。値が高いほどテキスト生成が高速",
         result: "結果",
         error: "エラー",
         status: "ステータス",
@@ -228,6 +270,7 @@ const translations = {
     },
     de: {
         title: "AI API Leistungstester",
+        toolDescription: "Vergleichen Sie die Leistung mehrerer KI-Modell-API-Anbieter und Modelle mit umfassenden Tests und Analysen.",
         configuration: "Konfiguration",
         protocol: "Protokoll",
         apiUrl: "API URL",
@@ -241,7 +284,9 @@ const translations = {
         prompt: "Prompt",
         round: "Runde",
         firstTokenTime: "Erstes Token (ms)",
+        firstTokenTooltip: "Zeit vom Anfrage-Start bis zum Empfang des ersten Tokens der Antwort",
         outputSpeed: "Ausgabegeschwindigkeit (t/s)",
+        outputSpeedTooltip: "Token-Generierungsrate gemessen in Tokens pro Sekunde (TPS). Höhere Werte zeigen schnellere Textgenerierung an",
         result: "Ergebnis",
         error: "Fehler",
         status: "Status",
@@ -284,6 +329,7 @@ const translations = {
     },
     es: {
         title: "Probador de Rendimiento API IA",
+        toolDescription: "Compare el rendimiento de múltiples proveedores de API y modelos de IA con pruebas y análisis integrales.",
         configuration: "Configuración",
         protocol: "Protocolo",
         apiUrl: "URL de la API",
@@ -297,7 +343,9 @@ const translations = {
         prompt: "Prompt",
         round: "Ronda",
         firstTokenTime: "Primer token (ms)",
+        firstTokenTooltip: "Tiempo desde el inicio de la solicitud hasta recibir el primer token de la respuesta",
         outputSpeed: "Velocidad de salida (t/s)",
+        outputSpeedTooltip: "Tasa de generación de tokens medida en tokens por segundo (TPS). Valores más altos indican generación de texto más rápida",
         result: "Resultado",
         error: "Error",
         status: "Estado",
@@ -340,6 +388,7 @@ const translations = {
     },
     ar: {
         title: "مختبر أداء واجهة برمجة تطبيقات الذكاء الاصطناعي",
+        toolDescription: "قارن أداء مقدمي واجهات برمجة التطبيقات ونماذج الذكاء الاصطناعي المتعددة مع اختبارات وتحليلات شاملة.",
         configuration: "التكوين",
         protocol: "البروتوكول",
         apiUrl: "رابط واجهة برمجة التطبيقات",
@@ -353,7 +402,9 @@ const translations = {
         prompt: "المطالبة",
         round: "الجولة",
         firstTokenTime: "الرمز الأول (مللي ثانية)",
+        firstTokenTooltip: "الوقت من بداية الطلب إلى استقبال أول رمز من الاستجابة",
         outputSpeed: "سرعة الإخراج (ر/ث)",
+        outputSpeedTooltip: "معدل توليد الرموز مقاساً بالرموز في الثانية (RPS). القيم الأعلى تشير إلى توليد نص أسرع",
         result: "النتيجة",
         error: "خطأ",
         status: "الحالة",
@@ -446,6 +497,15 @@ class I18n {
             const key = element.getAttribute('data-i18n');
             if (translations[this.currentLanguage] && translations[this.currentLanguage][key]) {
                 element.textContent = translations[this.currentLanguage][key];
+            }
+        });
+        
+        // Update tooltip titles
+        const tooltipElements = document.querySelectorAll('[data-i18n-title]');
+        tooltipElements.forEach(element => {
+            const key = element.getAttribute('data-i18n-title');
+            if (translations[this.currentLanguage] && translations[this.currentLanguage][key]) {
+                element.title = translations[this.currentLanguage][key];
             }
         });
 

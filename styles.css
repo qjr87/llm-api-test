@@ -20,6 +20,92 @@ header {
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
+/* Tool Description */
+.tool-description {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.description-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.description-content p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin: 0;
+    font-weight: 500;
+}
+
+/* Performance Metrics Explanation */
+.metrics-explanation {
+    background: white;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.metrics-content h2 {
+    color: #667eea;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 0.5rem;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.metric-item {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+    transition: all 0.3s ease;
+}
+
+.metric-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.metric-item h3 {
+    color: #667eea;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+}
+
+.metric-item p {
+    color: #666;
+    line-height: 1.6;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+    .metrics-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .metrics-explanation {
+        padding: 1rem;
+    }
+}
+
 nav {
     max-width: 1200px;
     margin: 0 auto;
@@ -158,6 +244,7 @@ textarea {
 /* Table styles */
 .table-container {
     overflow-x: auto;
+    overflow-y: visible;
     border-radius: 5px;
     border: 1px solid #e1e5e9;
 }
@@ -181,6 +268,7 @@ th {
     position: sticky;
     top: 0;
     z-index: 10;
+    overflow: visible;
 }
 
 tr:hover {
@@ -823,3 +911,48 @@ footer {
         font-size: 1.2rem;
     }
 }
+
+/* Tooltip styles */
+.tooltip-icon {
+    margin-left: 5px;
+    cursor: help;
+    font-size: 0.8em;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+    position: relative;
+}
+
+.tooltip-icon:hover {
+    opacity: 1;
+}
+
+/* .tooltip-icon:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: normal;
+    max-width: 200px;
+    width: max-content;
+    z-index: 9999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    word-wrap: break-word;
+    margin-bottom: 5px;
+}
+
+.tooltip-icon:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 95%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #333;
+    z-index: 9999;
+} */

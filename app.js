@@ -466,7 +466,7 @@ class APITester {
 
     showNotification(message) {
         // Simple notification - could be enhanced with a proper notification system
-        console.log('Notification:', message);
+        // console.log('Notification:', message);
         
         // Create a simple toast notification
         const toast = document.createElement('div');
@@ -841,7 +841,7 @@ class APITester {
             // 保存到本地存储
             localStorage.setItem('apiTesterHistory', JSON.stringify(limitedHistory));
             
-            console.log('历史记录已保存:', historyRecord);
+            // console.log('历史记录已保存:', historyRecord);
         } catch (e) {
             console.warn('保存历史记录失败:', e);
         }
@@ -862,7 +862,7 @@ class APITester {
     clearHistoryRecords() {
         try {
             localStorage.removeItem('apiTesterHistory');
-            console.log('历史记录已清除');
+            // console.log('历史记录已清除');
         } catch (e) {
             console.warn('清除历史记录失败:', e);
         }
@@ -871,7 +871,7 @@ class APITester {
     // 显示历史记录（可用于调试或未来的UI功能）
     displayHistoryRecords() {
         const history = this.getHistoryRecords();
-        console.log('历史记录:', history);
+        // console.log('历史记录:', history);
         return history;
     }
 
