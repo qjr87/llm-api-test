@@ -67,23 +67,46 @@ class APIHandler {
 
     async testGemini(model, prompt, startTime, onProgress) {
         // Gemini API endpoint construction
-        const url = `${this.apiUrl}/v1/models/${model}:streamGenerateContent?key=${this.apiKey}`;
+        let baseUrl = this.apiUrl;
+        if (baseUrl.endsWith('/')) {
+            baseUrl = baseUrl.slice(0, -1);
+        }
+
+        // Smart URL handling:
+        // 1. If URL contains '/models', extract the base part before it
+        // 2. If URL doesn't have version (v1/v1beta), add v1beta default
+        let endpointBase = baseUrl;
+        if (baseUrl.includes('/models')) {
+            endpointBase = baseUrl.substring(0, baseUrl.indexOf('/models'));
+        } else if (!baseUrl.match(/\/v1(beta)?$/)) {
+            endpointBase = `${baseUrl}/v1beta`;
+        }
+
+        const url = `${endpointBase}/models/${model}:streamGenerateContent?alt=sse`;
         
+        const headers = {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': this.apiKey
+        };
+
+        const bodyData = {
+            contents: [{
+                parts: [{
+                    text: prompt || ''
+                }],
+                role: 'user'
+            }],
+            generationConfig: {
+                maxOutputTokens: 1000
+            }
+        };
+
+        console.log('[Gemini Test] Request:', { url, headers, body: bodyData });
+
         const response = await fetch(url, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{
-                        text: prompt
-                    }]
-                }],
-                generationConfig: {
-                    maxOutputTokens: 1000
-                }
-            })
+            headers: headers,
+            body: JSON.stringify(bodyData)
         });
 
         if (!response.ok) {
@@ -193,8 +216,17 @@ class APIHandler {
 
                 for (const line of lines) {
                     if (line.trim()) {
+                        let data = line.trim();
+                        // Handle SSE format
+                        if (data.startsWith('data: ')) {
+                            data = data.slice(6);
+                        }
+                        
+                        // Skip empty or invalid lines
+                        if (!data || data === '[DONE]') continue;
+
                         try {
-                            const parsed = JSON.parse(line);
+                            const parsed = JSON.parse(data);
                             const content = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
                             const currentFinishReason = parsed.candidates?.[0]?.finishReason;
                             
