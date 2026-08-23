@@ -173,6 +173,18 @@ llm-api-test/
 | **Success Rate** | Percentage of successful requests | > 95% |
 | **Total Time** | Complete response generation time | Varies by length |
 
+## Cloud history and model authenticity
+
+The project includes an optional Cloudflare Worker + D1 backend for cloud
+performance history. GitHub Pages remains the static frontend. The backend
+stores endpoint hosts and metrics only; API keys, raw prompts, and model output
+are not persisted. See [worker/README.md](worker/README.md) for deployment.
+
+The UI also includes a small behavioral model-authenticity check. It reports
+consistency, suspicious mismatch, or inconclusive evidence rather than claiming
+to prove model provenance. Open-source references and attribution are listed in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
 ## 🤝 Contributing
 
 We welcome contributions! Here's how you can help:

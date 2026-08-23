@@ -187,6 +187,15 @@
                 <input type="number" id="rounds" min="1" max="10" value="1">
             </div>
 
+            <div class="model-detection-controls">
+                <div class="form-group">
+                    <label for="detectionModel" data-i18n="detectionModel">Authenticity Check Model</label>
+                    <select id="detectionModel"></select>
+                </div>
+                <button id="detectModelBtn" class="btn btn-secondary" data-i18n="detectModel">Check Model Authenticity</button>
+                <p class="field-help" data-i18n="detectionNotice">Runs five lightweight behavioral probes and may use API quota. Results are estimates, not proof.</p>
+            </div>
+
             <button id="startTest" data-i18n="startTest">Start Test</button>
         </section>
 
@@ -244,15 +253,37 @@
             </div>
         </section>
 
+        <!-- Model authenticity detection -->
+        <section id="modelDetectionSection" class="results-section hidden">
+            <div class="section-header">
+                <h2 data-i18n="modelDetection">Model Authenticity</h2>
+            </div>
+            <div id="modelDetectionStatus" class="detection-status" role="status"></div>
+            <div id="modelDetectionResult" class="detection-result"></div>
+            <p class="attribution-note" data-i18n="detectionAttribution">Detection design is adapted from open-source LLM fingerprinting research and projects listed in THIRD_PARTY_NOTICES.md.</p>
+        </section>
+
         <!-- History Section -->
         <section id="historySection" class="results-section">
             <div class="section-header">
                 <h2 data-i18n="history">History Records</h2>
                 <div class="history-controls">
+                    <div class="cloud-history-config">
+                        <label for="cloudApiUrl" data-i18n="cloudApiUrl">Cloud API URL</label>
+                        <input type="url" id="cloudApiUrl" value="https://llm-api-test-history.17600387682.workers.dev" placeholder="https://your-worker.example.workers.dev">
+                        <label class="cloud-sync-toggle">
+                            <input type="checkbox" id="syncCloudHistory" checked>
+                            <span data-i18n="syncCloudHistory">Sync completed runs to cloud</span>
+                        </label>
+                    </div>
+                    <button id="loadCloudHistoryBtn" class="btn btn-secondary" data-i18n="loadCloudHistory">Load Cloud History</button>
+                    <button id="clearCloudHistoryBtn" class="btn btn-danger" data-i18n="clearCloudHistory">Clear Cloud History</button>
                     <button id="clearHistoryBtn" class="btn btn-danger" data-i18n="clearHistory">Clear History</button>
                 </div>
             </div>
+            <div id="cloudHistoryStatus" class="cloud-status" role="status"></div>
             <div class="history-container">
+                <div id="cloudHistoryContent"></div>
                 <div id="historyContent">
 
                 </div>
@@ -341,6 +372,8 @@
 
     <script src="i18n.js"></script>
     <script src="api-handlers.js"></script>
+    <script src="cloud-history.js"></script>
+    <script src="model-detector.js"></script>
     <script src="app.js"></script>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-CWM17E4TQX"></script>

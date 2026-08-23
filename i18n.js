@@ -50,6 +50,35 @@ const translations = {
         showHistory: "Show History",
         clearHistory: "Clear History",
         historyEmpty: "No history records found",
+        detectionModel: "Authenticity Check Model",
+        detectModel: "Check Model Authenticity",
+        detectionNotice: "Runs five lightweight behavioral probes and may use API quota. Results are estimates, not proof.",
+        modelDetection: "Model Authenticity",
+        detectingModel: "Checking model",
+        detectionCompleted: "Model check completed",
+        detectionFailed: "Model check failed",
+        claimedModel: "Claimed model",
+        reportedModel: "Reported model",
+        verdict_consistent: "Consistent with claim",
+        verdict_suspicious: "Suspicious mismatch",
+        verdict_inconclusive: "Inconclusive",
+        detectionDisclaimer: "Behavioral checks estimate consistency and cannot prove the provider is serving a specific model.",
+        detectionAttribution: "Detection design is adapted from open-source LLM fingerprinting research and projects listed in THIRD_PARTY_NOTICES.md.",
+        cloudApiUrl: "Cloud API URL",
+        syncCloudHistory: "Sync completed runs to cloud",
+        loadCloudHistory: "Load Cloud History",
+        clearCloudHistory: "Clear Cloud History",
+        cloudHistory: "Cloud History",
+        cloudHistoryEmpty: "No cloud history records found",
+        deleteCloudRecord: "Delete",
+        cloudSaving: "Saving run to cloud...",
+        cloudSaved: "Run saved to cloud",
+        cloudSaveFailed: "Cloud save failed",
+        cloudLoading: "Loading cloud history...",
+        cloudLoaded: "Cloud history loaded",
+        cloudLoadFailed: "Cloud history failed",
+        cloudNotConfigured: "Enter a Cloud API URL first",
+        cloudHistoryCleared: "Cloud history cleared",
         
         // Performance Metrics Explanation
         metricsExplanation: "Performance Metrics Explanation",
@@ -125,6 +154,35 @@ const translations = {
         showHistory: "显示历史",
         clearHistory: "清除历史",
         historyEmpty: "没有找到历史记录",
+        detectionModel: "真实性检测模型",
+        detectModel: "检测模型真实性",
+        detectionNotice: "将运行 5 个轻量行为探针，可能消耗 API 配额。结果是估计值，不是证明。",
+        modelDetection: "模型真实性",
+        detectingModel: "正在检测模型",
+        detectionCompleted: "模型检测完成",
+        detectionFailed: "模型检测失败",
+        claimedModel: "声明模型",
+        reportedModel: "接口返回模型",
+        verdict_consistent: "与声明一致",
+        verdict_suspicious: "疑似模型不匹配",
+        verdict_inconclusive: "证据不足",
+        detectionDisclaimer: "行为检测只能估计一致性，无法证明接口一定提供了指定模型。",
+        detectionAttribution: "检测设计参考了 THIRD_PARTY_NOTICES.md 中列出的开源 LLM 指纹研究和项目。",
+        cloudApiUrl: "云端 API 地址",
+        syncCloudHistory: "将完成的测试同步到云端",
+        loadCloudHistory: "读取云端历史",
+        clearCloudHistory: "清除云端历史",
+        cloudHistory: "云端历史",
+        cloudHistoryEmpty: "暂无云端历史记录",
+        deleteCloudRecord: "删除",
+        cloudSaving: "正在保存到云端……",
+        cloudSaved: "测试已保存到云端",
+        cloudSaveFailed: "云端保存失败",
+        cloudLoading: "正在读取云端历史……",
+        cloudLoaded: "云端历史已读取",
+        cloudLoadFailed: "云端历史读取失败",
+        cloudNotConfigured: "请先填写云端 API 地址",
+        cloudHistoryCleared: "云端历史已清除",
         
         // 性能指标解释
         metricsExplanation: "性能指标解释",
@@ -495,8 +553,9 @@ class I18n {
         const elements = document.querySelectorAll('[data-i18n]');
         elements.forEach(element => {
             const key = element.getAttribute('data-i18n');
-            if (translations[this.currentLanguage] && translations[this.currentLanguage][key]) {
-                element.textContent = translations[this.currentLanguage][key];
+            const value = translations[this.currentLanguage]?.[key] || translations.en?.[key];
+            if (value) {
+                element.textContent = value;
             }
         });
         
@@ -504,8 +563,9 @@ class I18n {
         const tooltipElements = document.querySelectorAll('[data-i18n-title]');
         tooltipElements.forEach(element => {
             const key = element.getAttribute('data-i18n-title');
-            if (translations[this.currentLanguage] && translations[this.currentLanguage][key]) {
-                element.title = translations[this.currentLanguage][key];
+            const value = translations[this.currentLanguage]?.[key] || translations.en?.[key];
+            if (value) {
+                element.title = value;
             }
         });
 

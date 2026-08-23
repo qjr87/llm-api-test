@@ -1,0 +1,12 @@
+name = "llm-api-test-history"
+main = "src/index.js"
+compatibility_date = "2026-08-23"
+
+# Replace this with the exact GitHub Pages origin before deployment.
+[vars]
+ALLOWED_ORIGIN = "https://zgrai-com.github.io"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "llm_api"
+database_id = "ec6d66d3-5983-40dd-a643-9db8e82653b1"

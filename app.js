@@ -1,10 +1,14 @@
+const DEFAULT_CLOUD_API_URL = 'https://llm-api-test-history.17600387682.workers.dev';
+
 // Main application logic
 class APITester {
     constructor() {
         this.isRunning = false;
+        this.isDetecting = false;
         this.currentTests = [];
         this.testResults = [];
         this.currentTestId = null;
+        this.cloudHistoryClient = null;
         this.init();
     }
 
@@ -12,6 +16,7 @@ class APITester {
         this.setupEventListeners();
         this.setupProtocolDefaults();
         this.loadSavedConfig();
+        this.syncDetectionModelOptions();
     }
 
     setupEventListeners() {
@@ -26,7 +31,7 @@ class APITester {
         });
 
         // Save config on input changes
-        const configInputs = ['protocol', 'apiUrl', 'apiKey', 'models', 'prompts', 'rounds'];
+        const configInputs = ['protocol', 'apiUrl', 'apiKey', 'models', 'prompts', 'rounds', 'cloudApiUrl'];
         configInputs.forEach(id => {
             const element = document.getElementById(id);
             if (element) {
@@ -34,6 +39,19 @@ class APITester {
                 element.addEventListener('change', () => this.saveConfig());
             }
         });
+
+        const modelsInput = document.getElementById('models');
+        if (modelsInput) {
+            modelsInput.addEventListener('input', () => this.syncDetectionModelOptions());
+        }
+
+        const syncCloudHistory = document.getElementById('syncCloudHistory');
+        if (syncCloudHistory) {
+            syncCloudHistory.addEventListener('change', () => {
+                this.saveConfig();
+                if (syncCloudHistory.checked) this.loadCloudHistory();
+            });
+        }
 
         // Result cell click handlers for expanding text
         document.addEventListener('click', (e) => {
@@ -58,9 +76,25 @@ class APITester {
         if (clearHistoryBtn) {
             clearHistoryBtn.addEventListener('click', () => this.confirmClearHistory());
         }
+
+        const loadCloudHistoryBtn = document.getElementById('loadCloudHistoryBtn');
+        if (loadCloudHistoryBtn) {
+            loadCloudHistoryBtn.addEventListener('click', () => this.loadCloudHistory(true));
+        }
+
+        const clearCloudHistoryBtn = document.getElementById('clearCloudHistoryBtn');
+        if (clearCloudHistoryBtn) {
+            clearCloudHistoryBtn.addEventListener('click', () => this.confirmClearCloudHistory());
+        }
+
+        const detectModelBtn = document.getElementById('detectModelBtn');
+        if (detectModelBtn) {
+            detectModelBtn.addEventListener('click', () => this.detectModelAuthenticity());
+        }
         
         // 默认显示历史记录
         this.renderHistoryRecords();
+        this.renderCloudHistoryRecords([]);
 
         // Real-time viewer controls
         const toggleViewerBtn = document.getElementById('toggleViewer');
@@ -88,7 +122,10 @@ class APITester {
         apiUrlInput.placeholder = defaultUrl;
         
         // If current value is empty or is a default URL, update it
-        if (!apiUrlInput.value || Object.values(APIHandler.getDefaultApiUrl('')).includes(apiUrlInput.value)) {
+        const defaultUrls = ['openai', 'gemini']
+            .map(name => APIHandler.getDefaultApiUrl(name))
+            .filter(Boolean);
+        if (!apiUrlInput.value || defaultUrls.includes(apiUrlInput.value)) {
             apiUrlInput.value = defaultUrl;
         }
     }
@@ -99,12 +136,16 @@ class APITester {
             if (saved) {
                 const config = JSON.parse(saved);
                 
-                Object.keys(config).forEach(key => {
-                    const element = document.getElementById(key);
-                    if (element && config[key] !== undefined) {
-                        element.value = config[key];
-                    }
-                });
+                    Object.keys(config).forEach(key => {
+                        const element = document.getElementById(key);
+                        if (element && config[key] !== undefined) {
+                            if (element.type === 'checkbox') {
+                                element.checked = Boolean(config[key]);
+                            } else {
+                                element.value = config[key];
+                            }
+                        }
+                    });
             }
             
             // Set default prompts if prompts field is empty
@@ -117,6 +158,8 @@ class APITester {
                 ];
                 promptsElement.value = defaultPrompts.join('\n');
             }
+            this.syncDetectionModelOptions();
+            if (this.getCloudApiUrl()) this.loadCloudHistory();
         } catch (e) {
             console.warn('Failed to load saved config:', e);
         }
@@ -130,7 +173,9 @@ class APITester {
                 apiKey: document.getElementById('apiKey').value,
                 models: document.getElementById('models').value,
                 prompts: document.getElementById('prompts').value,
-                rounds: document.getElementById('rounds').value
+                rounds: document.getElementById('rounds').value,
+                cloudApiUrl: document.getElementById('cloudApiUrl')?.value || '',
+                syncCloudHistory: document.getElementById('syncCloudHistory')?.checked || false
             };
             
             localStorage.setItem('apiTesterConfig', JSON.stringify(config));
@@ -146,7 +191,9 @@ class APITester {
             apiKey: document.getElementById('apiKey').value.trim(),
             models: document.getElementById('models').value.trim().split('\n').filter(m => m.trim()),
             prompts: document.getElementById('prompts').value.trim().split('\n').filter(p => p.trim()),
-            rounds: parseInt(document.getElementById('rounds').value) || 1
+            rounds: parseInt(document.getElementById('rounds').value) || 1,
+            cloudApiUrl: this.getCloudApiUrl(),
+            syncCloudHistory: document.getElementById('syncCloudHistory')?.checked || false
         };
     }
 
@@ -186,7 +233,92 @@ class APITester {
             this.isRunning = false;
             this.updateStartButton(false);
             this.enableCompletedResultButtons();
-            this.generateStatistics();
+            await this.generateStatistics();
+        }
+    }
+
+    syncDetectionModelOptions() {
+        const select = document.getElementById('detectionModel');
+        const modelsInput = document.getElementById('models');
+        if (!select || !modelsInput) return;
+
+        const previousValue = select.value;
+        const models = modelsInput.value.split('\n').map(value => value.trim()).filter(Boolean);
+        select.innerHTML = '';
+        models.forEach(model => {
+            const option = document.createElement('option');
+            option.value = model;
+            option.textContent = model;
+            select.appendChild(option);
+        });
+        if (models.includes(previousValue)) select.value = previousValue;
+    }
+
+    async detectModelAuthenticity() {
+        if (this.isDetecting || this.isRunning) return;
+        const config = this.getConfig();
+        const errors = this.validateConfig(config).filter(error => !error.includes('prompt'));
+        const model = document.getElementById('detectionModel')?.value || config.models[0];
+        if (errors.length || !model) {
+            alert(errors.concat(model ? [] : [i18n.t('noModels')]).join('\n'));
+            return;
+        }
+
+        const section = document.getElementById('modelDetectionSection');
+        const status = document.getElementById('modelDetectionStatus');
+        const resultContainer = document.getElementById('modelDetectionResult');
+        const button = document.getElementById('detectModelBtn');
+        section.classList.remove('hidden');
+        resultContainer.innerHTML = '';
+        this.isDetecting = true;
+        button.disabled = true;
+
+        try {
+            const detector = new ModelDetector(config.protocol, config.apiUrl, config.apiKey);
+            const result = await detector.detect(model, (index, total) => {
+                status.className = 'detection-status';
+                status.textContent = `${i18n.t('detectingModel')} ${index + 1}/${total}`;
+            });
+            this.renderDetectionResult(result);
+            status.className = 'detection-status success';
+            status.textContent = i18n.t('detectionCompleted');
+            this.saveDetectionResult(result);
+        } catch (error) {
+            status.className = 'detection-status error';
+            status.textContent = `${i18n.t('detectionFailed')}: ${error.message}`;
+        } finally {
+            this.isDetecting = false;
+            button.disabled = false;
+        }
+    }
+
+    renderDetectionResult(result) {
+        const container = document.getElementById('modelDetectionResult');
+        container.innerHTML = '';
+        const title = document.createElement('h3');
+        title.textContent = `${i18n.t(`verdict_${result.verdict}`)} (${result.score}/100)`;
+        const summary = document.createElement('p');
+        summary.textContent = `${i18n.t('claimedModel')}: ${result.claimedModel} | ${i18n.t('reportedModel')}: ${result.reportedModel || '-'}`;
+        const list = document.createElement('ul');
+        result.evidence.forEach(item => {
+            const entry = document.createElement('li');
+            entry.textContent = `${item.passed ? 'PASS' : 'CHECK'}: ${item.detail}`;
+            list.appendChild(entry);
+        });
+        const disclaimer = document.createElement('p');
+        disclaimer.className = 'field-help';
+        disclaimer.textContent = i18n.t('detectionDisclaimer');
+        container.append(title, summary, list, disclaimer);
+    }
+
+    saveDetectionResult(result) {
+        try {
+            const saved = JSON.parse(localStorage.getItem('apiTesterDetectionHistory') || '[]');
+            const history = Array.isArray(saved) ? saved : [];
+            history.unshift({ ...result, timestamp: new Date().toISOString() });
+            localStorage.setItem('apiTesterDetectionHistory', JSON.stringify(history.slice(0, 10)));
+        } catch (error) {
+            console.warn('Failed to save model detection result:', error);
         }
     }
 
@@ -694,7 +826,7 @@ class APITester {
         return Math.ceil(text.length / 4);
     }
 
-    generateStatistics() {
+    async generateStatistics() {
         if (this.testResults.length === 0) {
             return;
         }
@@ -729,10 +861,15 @@ class APITester {
         });
 
         // 保存历史记录
-        this.saveHistoryRecord(modelStats);
+        const historyRecord = this.saveHistoryRecord(modelStats);
 
         // 计算平均值并显示统计表格
         this.displayStatistics(modelStats);
+
+        const config = this.getConfig();
+        if (historyRecord && config.syncCloudHistory && config.cloudApiUrl) {
+            await this.syncHistoryRecordToCloud(historyRecord);
+        }
     }
 
     displayStatistics(modelStats) {
@@ -796,6 +933,25 @@ class APITester {
                 apiUrl: config.apiUrl,
                 protocol: config.protocol,
                 testDate: new Date().toLocaleString('zh-CN'),
+                // Keep the request configuration and individual results so a test
+                // run can be inspected after a page refresh. The API key is
+                // intentionally excluded from historical snapshots.
+                testConfig: {
+                    models: [...config.models],
+                    prompts: [...config.prompts],
+                    rounds: config.rounds
+                },
+                results: this.testResults.map(result => ({
+                    testId: result.testId,
+                    model: result.model,
+                    prompt: result.prompt,
+                    round: result.round,
+                    firstTokenTime: result.firstTokenTime,
+                    outputSpeed: result.outputSpeed,
+                    result: result.result,
+                    error: result.error,
+                    status: result.status
+                })),
                 modelStats: {},
                 summary: {
                     totalModels: Object.keys(modelStats).length,
@@ -840,10 +996,110 @@ class APITester {
             
             // 保存到本地存储
             localStorage.setItem('apiTesterHistory', JSON.stringify(limitedHistory));
-            
-            // console.log('历史记录已保存:', historyRecord);
+            return historyRecord;
         } catch (e) {
             console.warn('保存历史记录失败:', e);
+            return null;
+        }
+    }
+
+    getCloudApiUrl() {
+        const input = document.getElementById('cloudApiUrl');
+        const value = input?.value || DEFAULT_CLOUD_API_URL;
+        if (input && !input.value) input.value = DEFAULT_CLOUD_API_URL;
+        return value.trim().replace(/\/$/, '');
+    }
+
+    getCloudHistoryClient() {
+        const apiUrl = this.getCloudApiUrl();
+        if (!this.cloudHistoryClient || this.cloudHistoryClient.baseUrl !== apiUrl) {
+            this.cloudHistoryClient = new CloudHistoryClient(apiUrl);
+        }
+        return this.cloudHistoryClient;
+    }
+
+    async syncHistoryRecordToCloud(record) {
+        const status = document.getElementById('cloudHistoryStatus');
+        try {
+            status.className = 'cloud-status';
+            status.textContent = i18n.t('cloudSaving');
+            await this.getCloudHistoryClient().saveRun(record);
+            status.className = 'cloud-status success';
+            status.textContent = i18n.t('cloudSaved');
+            await this.loadCloudHistory();
+        } catch (error) {
+            status.className = 'cloud-status error';
+            status.textContent = `${i18n.t('cloudSaveFailed')}: ${error.message}`;
+        }
+    }
+
+    async loadCloudHistory(showErrors = false) {
+        const status = document.getElementById('cloudHistoryStatus');
+        const client = this.getCloudHistoryClient();
+        if (!client.isConfigured()) {
+            if (showErrors) {
+                status.className = 'cloud-status error';
+                status.textContent = i18n.t('cloudNotConfigured');
+            }
+            return;
+        }
+
+        try {
+            status.className = 'cloud-status';
+            status.textContent = i18n.t('cloudLoading');
+            const runs = await client.listRuns();
+            this.renderCloudHistoryRecords(runs);
+            status.className = 'cloud-status success';
+            status.textContent = i18n.t('cloudLoaded');
+        } catch (error) {
+            status.className = 'cloud-status error';
+            status.textContent = `${i18n.t('cloudLoadFailed')}: ${error.message}`;
+        }
+    }
+
+    renderCloudHistoryRecords(runs) {
+        const container = document.getElementById('cloudHistoryContent');
+        if (!container) return;
+        container.innerHTML = '';
+        if (!runs.length) return;
+
+        const heading = document.createElement('h3');
+        heading.textContent = i18n.t('cloudHistory');
+        container.appendChild(heading);
+        runs.forEach(run => {
+            const record = document.createElement('div');
+            record.className = 'cloud-history-record';
+            const title = document.createElement('h3');
+            title.textContent = `${new Date(run.createdAt).toLocaleString()} - ${run.models.join(', ')}`;
+            const meta = document.createElement('p');
+            meta.textContent = `${run.protocol} | ${run.endpointHost}`;
+            const summary = document.createElement('div');
+            summary.className = 'summary-stats';
+            const successRate = run.totalTests > 0 ? ((run.successfulTests / run.totalTests) * 100).toFixed(1) : '0.0';
+            summary.textContent = `${i18n.t('totalTests')}: ${run.totalTests} | ${i18n.t('successRate')}: ${successRate}%`;
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'btn btn-danger';
+            deleteButton.textContent = i18n.t('deleteCloudRecord');
+            deleteButton.addEventListener('click', async () => {
+                await this.getCloudHistoryClient().deleteRun(run.id);
+                await this.loadCloudHistory(true);
+            });
+            record.append(title, meta, summary, deleteButton);
+            container.appendChild(record);
+        });
+    }
+
+    async confirmClearCloudHistory() {
+        if (!confirm(i18n.t('confirmClearCloudHistory'))) return;
+        const status = document.getElementById('cloudHistoryStatus');
+        try {
+            await this.getCloudHistoryClient().clearRuns();
+            this.renderCloudHistoryRecords([]);
+            status.className = 'cloud-status success';
+            status.textContent = i18n.t('cloudHistoryCleared');
+        } catch (error) {
+            status.className = 'cloud-status error';
+            status.textContent = `${i18n.t('cloudLoadFailed')}: ${error.message}`;
         }
     }
 
@@ -851,7 +1107,8 @@ class APITester {
     getHistoryRecords() {
         try {
             const saved = localStorage.getItem('apiTesterHistory');
-            return saved ? JSON.parse(saved) : [];
+            const records = saved ? JSON.parse(saved) : [];
+            return Array.isArray(records) ? records : [];
         } catch (e) {
             console.warn('读取历史记录失败:', e);
             return [];
