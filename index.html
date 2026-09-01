@@ -187,6 +187,18 @@
                 <input type="number" id="rounds" min="1" max="10" value="1">
             </div>
 
+            <div class="cost-controls">
+                <div class="form-group">
+                    <label for="inputPrice" data-i18n="inputPrice">Input price (USD / 1M tokens)</label>
+                    <input type="number" id="inputPrice" min="0" step="0.01" value="0" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="outputPrice" data-i18n="outputPrice">Output price (USD / 1M tokens)</label>
+                    <input type="number" id="outputPrice" min="0" step="0.01" value="0" placeholder="0.00">
+                </div>
+                <p class="field-help" data-i18n="costEstimateNotice">Estimates use prompt and response length. Enter 0 to hide cost impact.</p>
+            </div>
+
             <div class="model-detection-controls">
                 <div class="form-group">
                     <label for="detectionModel" data-i18n="detectionModel">Authenticity Check Model</label>
@@ -235,12 +247,19 @@
         <section id="statisticsSection" class="results-section">
             <div class="section-header">
                 <h2 data-i18n="statistics">Statistics</h2>
+                <div class="section-actions">
+                    <button id="shareReportBtn" class="btn btn-secondary" data-i18n="shareReport" disabled>Share Report</button>
+                    <div id="shareReportLink" class="share-report-link" aria-live="polite"></div>
+                </div>
             </div>
+            <div id="recommendationPanel" class="recommendation-panel hidden"></div>
             <div class="statistics-table-container">
                 <table id="statisticsTable">
                     <thead>
                         <tr>
                             <th data-i18n="model">Model</th>
+                            <th data-i18n="recommendationScore">Score</th>
+                            <th data-i18n="estimatedCost">Est. Cost</th>
                             <th data-i18n="averageFirstToken">Avg First Token (ms)</th>
                             <th data-i18n="averageOutputSpeed">Avg Output Speed (t/s)</th>
                             <th data-i18n="successRate">Success Rate</th>
@@ -251,6 +270,13 @@
                     </tbody>
                 </table>
             </div>
+        </section>
+
+        <section id="sharedReportSection" class="results-section hidden">
+            <div class="section-header">
+                <h2 data-i18n="sharedReport">Shared Test Report</h2>
+            </div>
+            <div id="sharedReportContent"></div>
         </section>
 
         <!-- Model authenticity detection -->
@@ -266,11 +292,11 @@
         <!-- History Section -->
         <section id="historySection" class="results-section">
             <div class="section-header">
-                <h2 data-i18n="history">History Records</h2>
+                <h2 data-i18n="cloudHistory">Cloud History</h2>
                 <div class="history-controls">
                     <div class="cloud-history-config">
                         <label for="cloudApiUrl" data-i18n="cloudApiUrl">Cloud API URL</label>
-                        <input type="url" id="cloudApiUrl" value="https://llm-api-test-history.17600387682.workers.dev" placeholder="https://your-worker.example.workers.dev">
+                        <input type="url" id="cloudApiUrl" value="https://llm-api-test-history.qjr.workers.dev" placeholder="https://your-worker.example.workers.dev">
                         <label class="cloud-sync-toggle">
                             <input type="checkbox" id="syncCloudHistory" checked>
                             <span data-i18n="syncCloudHistory">Sync completed runs to cloud</span>
@@ -278,15 +304,11 @@
                     </div>
                     <button id="loadCloudHistoryBtn" class="btn btn-secondary" data-i18n="loadCloudHistory">Load Cloud History</button>
                     <button id="clearCloudHistoryBtn" class="btn btn-danger" data-i18n="clearCloudHistory">Clear Cloud History</button>
-                    <button id="clearHistoryBtn" class="btn btn-danger" data-i18n="clearHistory">Clear History</button>
                 </div>
             </div>
             <div id="cloudHistoryStatus" class="cloud-status" role="status"></div>
             <div class="history-container">
                 <div id="cloudHistoryContent"></div>
-                <div id="historyContent">
-
-                </div>
             </div>
         </section>
 

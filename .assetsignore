@@ -1,0 +1,12 @@
+node_modules/
+worker/
+.git/
+.wrangler/
+.assetsignore
+package.json
+package-lock.json
+README*.md
+LICENSE
+THIRD_PARTY_NOTICES.md
+.gitignore
+*.log

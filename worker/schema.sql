@@ -29,3 +29,11 @@ CREATE TABLE IF NOT EXISTS test_results (
 
 CREATE INDEX IF NOT EXISTS idx_test_results_run
     ON test_results(run_id);
+
+CREATE TABLE IF NOT EXISTS shared_reports (
+    id TEXT PRIMARY KEY,
+    created_at TEXT NOT NULL,
+    protocol TEXT NOT NULL,
+    endpoint_host TEXT NOT NULL,
+    report_json TEXT NOT NULL
+);

@@ -43,6 +43,27 @@ const translations = {
         clickToViewProgress: "Click to view current progress",
         error: "Error",
         statistics: "Statistics",
+        recommendationScore: "Score",
+        recommendation: "Recommendation",
+        recommendedModel: "Recommended model",
+        shareReport: "Share Report",
+        reportCreating: "Creating share link...",
+        reportCreated: "Share link created",
+        reportCreateFailed: "Could not create share link",
+        copyLink: "Copy Link",
+        sharedReport: "Shared Test Report",
+        reportNotFound: "Report not found",
+        fastestModel: "Fastest response",
+        stableModel: "Most reliable",
+        inputPrice: "Input price (USD / 1M tokens)",
+        outputPrice: "Output price (USD / 1M tokens)",
+        costEstimateNotice: "Estimates use prompt and response length. Enter 0 to hide cost impact.",
+        estimatedCost: "Est. Cost",
+        totalEstimatedCost: "Estimated total cost",
+        viewRunDetails: "View test details",
+        loadingDetails: "Loading test details...",
+        noRunResults: "No detailed results saved",
+        backToTester: "Back to tester",
         averageFirstToken: "Avg First Token (ms)",
         averageOutputSpeed: "Avg Output Speed (t/s)",
         successRate: "Success Rate",
@@ -147,6 +168,27 @@ const translations = {
         clickToViewProgress: "点击查看当前进度",
         error: "错误",
         statistics: "统计信息",
+        recommendationScore: "综合分",
+        recommendation: "模型推荐",
+        recommendedModel: "推荐模型",
+        shareReport: "生成分享报告",
+        reportCreating: "正在生成分享链接……",
+        reportCreated: "分享链接已生成",
+        reportCreateFailed: "分享链接生成失败",
+        copyLink: "复制链接",
+        sharedReport: "分享测试报告",
+        reportNotFound: "报告不存在",
+        fastestModel: "响应最快",
+        stableModel: "最稳定",
+        inputPrice: "输入价格（美元 / 100 万 Token）",
+        outputPrice: "输出价格（美元 / 100 万 Token）",
+        costEstimateNotice: "根据提示词和回答长度估算。输入 0 可隐藏成本影响。",
+        estimatedCost: "预估成本",
+        totalEstimatedCost: "预估总成本",
+        viewRunDetails: "查看测试详情",
+        loadingDetails: "正在加载测试详情……",
+        noRunResults: "没有保存详细结果",
+        backToTester: "返回测试器",
         averageFirstToken: "平均首字响应 (ms)",
         averageOutputSpeed: "平均输出速度 (t/s)",
         successRate: "成功率",
@@ -605,6 +647,7 @@ class I18n {
             localStorage.setItem('language', lang);
             this.updateTexts();
             this.updateDirection();
+            window.dispatchEvent(new CustomEvent('app-language-change', { detail: { language: lang } }));
             
             // Update URL without reload
             const url = new URL(window.location);
@@ -622,4 +665,5 @@ class I18n {
 let i18n;
 document.addEventListener('DOMContentLoaded', () => {
     i18n = new I18n();
+    window.i18n = i18n;
 });

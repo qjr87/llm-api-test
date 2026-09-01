@@ -1,12 +1,18 @@
 name = "llm-api-test-history"
 main = "src/index.js"
 compatibility_date = "2026-08-23"
+account_id = "d0181646eb85979ef4e605dd57955bda"
 
-# Replace this with the exact GitHub Pages origin before deployment.
+# Set this to the origin that serves the frontend.
 [vars]
-ALLOWED_ORIGIN = "https://zgrai-com.github.io"
+ALLOWED_ORIGIN = "https://llm-api-test-history.qjr.workers.dev"
+
+[assets]
+directory = "../"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "llm_api"
-database_id = "ec6d66d3-5983-40dd-a643-9db8e82653b1"
+database_id = "e4ceb656-934c-4d4d-ae95-9e661483026f"

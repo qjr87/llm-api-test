@@ -1,4 +1,4 @@
-const DEFAULT_CLOUD_API_URL = 'https://llm-api-test-history.17600387682.workers.dev';
+const DEFAULT_CLOUD_API_URL = 'https://llm-api-test-history.qjr.workers.dev';
 
 // Main application logic
 class APITester {
@@ -9,6 +9,7 @@ class APITester {
         this.testResults = [];
         this.currentTestId = null;
         this.cloudHistoryClient = null;
+        this.currentHistoryRecord = null;
         this.init();
     }
 
@@ -17,6 +18,7 @@ class APITester {
         this.setupProtocolDefaults();
         this.loadSavedConfig();
         this.syncDetectionModelOptions();
+        this.loadSharedReportFromUrl();
     }
 
     setupEventListeners() {
@@ -31,7 +33,7 @@ class APITester {
         });
 
         // Save config on input changes
-        const configInputs = ['protocol', 'apiUrl', 'apiKey', 'models', 'prompts', 'rounds', 'cloudApiUrl'];
+        const configInputs = ['protocol', 'apiUrl', 'apiKey', 'models', 'prompts', 'rounds', 'inputPrice', 'outputPrice', 'cloudApiUrl'];
         configInputs.forEach(id => {
             const element = document.getElementById(id);
             if (element) {
@@ -91,6 +93,18 @@ class APITester {
         if (detectModelBtn) {
             detectModelBtn.addEventListener('click', () => this.detectModelAuthenticity());
         }
+
+        const shareReportBtn = document.getElementById('shareReportBtn');
+        if (shareReportBtn) {
+            shareReportBtn.addEventListener('click', () => this.createShareReport());
+        }
+
+        window.addEventListener('app-language-change', () => {
+            this.renderHistoryRecords();
+            if (this.currentHistoryRecord?.modelStats) {
+                this.renderRecommendation(this.currentHistoryRecord.modelStats);
+            }
+        });
         
         // 默认显示历史记录
         this.renderHistoryRecords();
@@ -174,6 +188,8 @@ class APITester {
                 models: document.getElementById('models').value,
                 prompts: document.getElementById('prompts').value,
                 rounds: document.getElementById('rounds').value,
+                inputPrice: document.getElementById('inputPrice')?.value || '0',
+                outputPrice: document.getElementById('outputPrice')?.value || '0',
                 cloudApiUrl: document.getElementById('cloudApiUrl')?.value || '',
                 syncCloudHistory: document.getElementById('syncCloudHistory')?.checked || false
             };
@@ -192,6 +208,8 @@ class APITester {
             models: document.getElementById('models').value.trim().split('\n').filter(m => m.trim()),
             prompts: document.getElementById('prompts').value.trim().split('\n').filter(p => p.trim()),
             rounds: parseInt(document.getElementById('rounds').value) || 1,
+            inputPrice: this.getPrice('inputPrice'),
+            outputPrice: this.getPrice('outputPrice'),
             cloudApiUrl: this.getCloudApiUrl(),
             syncCloudHistory: document.getElementById('syncCloudHistory')?.checked || false
         };
@@ -841,11 +859,15 @@ class APITester {
                     firstTokenTimes: [],
                     outputSpeeds: [],
                     totalTests: 0,
-                    successfulTests: 0
+                    successfulTests: 0,
+                    inputTokens: 0,
+                    outputTokens: 0
                 };
             }
             
             modelStats[model].totalTests++;
+            modelStats[model].inputTokens += this.estimateTokens(result.prompt || '');
+            modelStats[model].outputTokens += this.estimateTokens(result.result || '');
             
             if (result.status === 'completed' && !result.error) {
                 modelStats[model].successfulTests++;
@@ -860,8 +882,11 @@ class APITester {
             }
         });
 
+        this.decorateModelStats(modelStats);
+
         // 保存历史记录
         const historyRecord = this.saveHistoryRecord(modelStats);
+        this.currentHistoryRecord = historyRecord;
 
         // 计算平均值并显示统计表格
         this.displayStatistics(modelStats);
@@ -906,6 +931,8 @@ class APITester {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${model}</td>
+                <td><span class="rank-badge">${stats.rank || '-'}</span> ${Number(stats.score || 0).toFixed(1)}</td>
+                <td>${this.formatCost(stats.estimatedCost)}</td>
                 <td>${avgFirstToken}${avgFirstToken !== '-' ? 'ms' : ''}</td>
                 <td>${avgOutputSpeed}${avgOutputSpeed !== '-' ? ' tokens/s' : ''}</td>
                 <td class="stats-success-rate" data-rate="${successRate}">${successRate}%</td>
@@ -916,6 +943,9 @@ class APITester {
 
         // 显示统计表格
         statisticsSection.classList.remove('hidden');
+        const shareButton = document.getElementById('shareReportBtn');
+        if (shareButton) shareButton.disabled = !this.currentHistoryRecord;
+        this.renderRecommendation(modelStats);
         
         // 刷新历史记录显示
         this.renderHistoryRecords();
@@ -957,7 +987,8 @@ class APITester {
                     totalModels: Object.keys(modelStats).length,
                     totalTests: this.testResults.length,
                     successfulTests: this.testResults.filter(r => r.status === 'completed' && !r.error).length
-                }
+                },
+                recommendation: ''
             };
 
             // 计算每个模型的统计数据
@@ -981,9 +1012,23 @@ class APITester {
                     avgOutputSpeed: avgOutputSpeed,
                     successRate: successRate,
                     totalTests: stats.totalTests,
-                    successfulTests: stats.successfulTests
+                    successfulTests: stats.successfulTests,
+                    inputTokens: stats.inputTokens,
+                    outputTokens: stats.outputTokens,
+                    estimatedCost: stats.estimatedCost,
+                    score: stats.score,
+                    rank: stats.rank
                 };
             });
+
+            const ranked = Object.entries(modelStats).sort((a, b) => (b[1].score || 0) - (a[1].score || 0));
+            historyRecord.recommendation = ranked[0]?.[0] || '';
+            historyRecord.cost = {
+                inputPrice: config.inputPrice,
+                outputPrice: config.outputPrice,
+                estimatedTotalCost: Object.values(modelStats).reduce((total, stats) => total + (stats.estimatedCost || 0), 0),
+                configured: config.inputPrice > 0 || config.outputPrice > 0
+            };
 
             // 获取现有历史记录
             const existingHistory = this.getHistoryRecords();
@@ -1001,6 +1046,116 @@ class APITester {
             console.warn('保存历史记录失败:', e);
             return null;
         }
+    }
+
+    decorateModelStats(modelStats) {
+        const inputPrice = this.getPrice('inputPrice');
+        const outputPrice = this.getPrice('outputPrice');
+        const entries = Object.values(modelStats);
+        const latencies = entries.map(stats => stats.firstTokenTimes.length ? stats.firstTokenTimes.reduce((a, b) => a + b, 0) / stats.firstTokenTimes.length : null).filter(value => value > 0);
+        const speeds = entries.map(stats => stats.outputSpeeds.length ? stats.outputSpeeds.reduce((a, b) => a + b, 0) / stats.outputSpeeds.length : null).filter(value => value > 0);
+        const minLatency = Math.min(...latencies);
+        const maxSpeed = Math.max(...speeds);
+        Object.entries(modelStats).forEach(([model, stats]) => {
+            const latency = stats.firstTokenTimes.length ? stats.firstTokenTimes.reduce((a, b) => a + b, 0) / stats.firstTokenTimes.length : null;
+            const speed = stats.outputSpeeds.length ? stats.outputSpeeds.reduce((a, b) => a + b, 0) / stats.outputSpeeds.length : null;
+            const reliability = stats.totalTests ? (stats.successfulTests / stats.totalTests) * 100 : 0;
+            const latencyScore = latency && Number.isFinite(minLatency) ? Math.min(100, (minLatency / latency) * 100) : 0;
+            const speedScore = speed && Number.isFinite(maxSpeed) ? Math.min(100, (speed / maxSpeed) * 100) : 0;
+            stats.score = reliability * 0.5 + latencyScore * 0.3 + speedScore * 0.2;
+            stats.estimatedCost = inputPrice > 0 || outputPrice > 0
+                ? (stats.inputTokens / 1000000) * inputPrice + (stats.outputTokens / 1000000) * outputPrice
+                : null;
+        });
+        Object.entries(modelStats).sort((a, b) => b[1].score - a[1].score).forEach(([model], index) => {
+            modelStats[model].rank = index + 1;
+        });
+    }
+
+    getPrice(id) {
+        const value = Number.parseFloat(document.getElementById(id)?.value);
+        return Number.isFinite(value) && value >= 0 ? value : 0;
+    }
+
+    formatCost(value) {
+        return value == null || !Number.isFinite(Number(value)) ? '-' : `$${Number(value).toFixed(4)}`;
+    }
+
+    renderRecommendation(modelStats) {
+        const panel = document.getElementById('recommendationPanel');
+        if (!panel) return;
+        const ranked = Object.entries(modelStats).sort((a, b) => (b[1].score || 0) - (a[1].score || 0));
+        if (!ranked.length) { panel.classList.add('hidden'); return; }
+        const fastest = Object.entries(modelStats).filter(([, stats]) => stats.firstTokenTimes.length).sort((a, b) => (a[1].firstTokenTimes.reduce((x, y) => x + y, 0) / a[1].firstTokenTimes.length) - (b[1].firstTokenTimes.reduce((x, y) => x + y, 0) / b[1].firstTokenTimes.length))[0]?.[0];
+        const stable = Object.entries(modelStats).sort((a, b) => (b[1].successRate || (b[1].successfulTests / b[1].totalTests * 100)) - (a[1].successRate || (a[1].successfulTests / a[1].totalTests * 100)))[0]?.[0];
+        panel.classList.remove('hidden');
+        panel.innerHTML = `<strong>${i18n.t('recommendedModel')}:</strong> ${this.escapeHtml(ranked[0][0])} (${ranked[0][1].score.toFixed(1)}) · <strong>${i18n.t('fastestModel')}:</strong> ${this.escapeHtml(fastest || '-')} · <strong>${i18n.t('stableModel')}:</strong> ${this.escapeHtml(stable || '-')}`;
+    }
+
+    async createShareReport() {
+        if (!this.currentHistoryRecord) return;
+        const button = document.getElementById('shareReportBtn');
+        try {
+            button.disabled = true;
+            button.textContent = i18n.t('reportCreating');
+            const result = await this.getCloudHistoryClient().createShareReport(this.currentHistoryRecord);
+            const url = new URL(window.location.href);
+            url.searchParams.set('report', result.id);
+            url.hash = '';
+            const shareUrl = url.toString();
+            await navigator.clipboard?.writeText(shareUrl);
+            const linkContainer = document.getElementById('shareReportLink');
+            if (linkContainer) {
+                linkContainer.innerHTML = `<a href="${this.escapeHtml(shareUrl)}" target="_blank" rel="noopener noreferrer">${this.escapeHtml(shareUrl)}</a>`;
+            }
+            button.textContent = i18n.t('shareReport');
+            button.disabled = false;
+            button.title = i18n.t('reportCreated');
+        } catch (error) {
+            button.textContent = `${i18n.t('reportCreateFailed')}: ${error.message}`;
+            button.disabled = false;
+        }
+    }
+
+    async loadSharedReportFromUrl() {
+        const id = new URLSearchParams(window.location.search).get('report');
+        if (!id) return;
+        try {
+            const report = await this.getCloudHistoryClient().getShareReport(id);
+            if (!report) throw new Error(i18n.t('reportNotFound'));
+            this.renderSharedReport(report);
+            this.enterSharedReportMode();
+        } catch (error) {
+            const section = document.getElementById('sharedReportSection');
+            const content = document.getElementById('sharedReportContent');
+            if (section && content) {
+                section.classList.remove('hidden');
+                content.textContent = error.message;
+                this.enterSharedReportMode();
+            }
+        }
+    }
+
+    renderSharedReport(report) {
+        const section = document.getElementById('sharedReportSection');
+        const content = document.getElementById('sharedReportContent');
+        if (!section || !content) return;
+        const rows = Object.entries(report.modelStats || {}).sort((a, b) => (a[1].rank || 99) - (b[1].rank || 99)).map(([model, stats]) => `<tr><td><span class="rank-badge">${stats.rank || '-'}</span> ${this.escapeHtml(model)}</td><td>${Number(stats.score || 0).toFixed(1)}</td><td>${this.formatCost(stats.estimatedCost)}</td><td>${stats.avgFirstTokenTime ? Number(stats.avgFirstTokenTime).toFixed(0) + ' ms' : '-'}</td><td>${stats.avgOutputSpeed ? Number(stats.avgOutputSpeed).toFixed(1) + ' tokens/s' : '-'}</td><td>${Number(stats.successRate || 0).toFixed(1)}%</td></tr>`).join('');
+        const costSummary = report.cost?.configured ? ` · ${i18n.t('totalEstimatedCost')}: <strong>${this.formatCost(report.cost.estimatedTotalCost)}</strong>` : '';
+        content.innerHTML = `<p class="shared-report-meta">${this.escapeHtml(report.protocol)} · ${this.escapeHtml(report.endpointHost)} · ${new Date(report.createdAt).toLocaleString()}</p><p>${i18n.t('recommendedModel')}: <strong>${this.escapeHtml(report.recommendation || '-')}</strong> · ${i18n.t('totalTests')}: ${report.totalTests} · ${i18n.t('successfulTests')}: ${report.successfulTests}${costSummary}</p><div class="table-container"><table class="shared-report-table"><thead><tr><th>${i18n.t('model')}</th><th>${i18n.t('recommendationScore')}</th><th>${i18n.t('estimatedCost')}</th><th>${i18n.t('averageFirstToken')}</th><th>${i18n.t('averageOutputSpeed')}</th><th>${i18n.t('successRate')}</th></tr></thead><tbody>${rows}</tbody></table></div><p><a class="back-to-tester" href="${this.escapeHtml(window.location.pathname)}">← ${i18n.t('backToTester')}</a></p>`;
+        section.classList.remove('hidden');
+    }
+
+    enterSharedReportMode() {
+        const reportSection = document.getElementById('sharedReportSection');
+        document.querySelectorAll('main > section').forEach(section => {
+            if (section !== reportSection) section.classList.add('hidden');
+        });
+        reportSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>\"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', "'": '&#39;' }[character]));
     }
 
     getCloudApiUrl() {
@@ -1069,7 +1224,10 @@ class APITester {
         runs.forEach(run => {
             const record = document.createElement('div');
             record.className = 'cloud-history-record';
-            const title = document.createElement('h3');
+            const title = document.createElement('button');
+            title.className = 'cloud-record-toggle';
+            title.type = 'button';
+            title.title = i18n.t('viewRunDetails');
             title.textContent = `${new Date(run.createdAt).toLocaleString()} - ${run.models.join(', ')}`;
             const meta = document.createElement('p');
             meta.textContent = `${run.protocol} | ${run.endpointHost}`;
@@ -1077,6 +1235,9 @@ class APITester {
             summary.className = 'summary-stats';
             const successRate = run.totalTests > 0 ? ((run.successfulTests / run.totalTests) * 100).toFixed(1) : '0.0';
             summary.textContent = `${i18n.t('totalTests')}: ${run.totalTests} | ${i18n.t('successRate')}: ${successRate}%`;
+            const details = document.createElement('div');
+            details.className = 'cloud-run-details hidden';
+            title.addEventListener('click', () => this.toggleCloudRunDetails(run.id, details, title));
             const deleteButton = document.createElement('button');
             deleteButton.className = 'btn btn-danger';
             deleteButton.textContent = i18n.t('deleteCloudRecord');
@@ -1084,9 +1245,33 @@ class APITester {
                 await this.getCloudHistoryClient().deleteRun(run.id);
                 await this.loadCloudHistory(true);
             });
-            record.append(title, meta, summary, deleteButton);
+            record.append(title, meta, summary, details, deleteButton);
             container.appendChild(record);
         });
+    }
+
+    async toggleCloudRunDetails(runId, container, toggle) {
+        if (!container.classList.contains('hidden')) {
+            container.classList.add('hidden');
+            return;
+        }
+        container.classList.remove('hidden');
+        if (container.dataset.loaded === 'true') return;
+        container.textContent = i18n.t('loadingDetails');
+        try {
+            const run = await this.getCloudHistoryClient().getRun(runId);
+            const results = run?.results || [];
+            if (!results.length) {
+                container.textContent = i18n.t('noRunResults');
+                container.dataset.loaded = 'true';
+                return;
+            }
+            const rows = results.map(result => `<tr><td>${this.escapeHtml(result.model)}</td><td>${result.round || '-'}</td><td>${result.first_token_ms != null ? Number(result.first_token_ms).toFixed(0) + ' ms' : '-'}</td><td>${result.output_speed != null ? Number(result.output_speed).toFixed(1) + ' tokens/s' : '-'}</td><td>${this.escapeHtml(result.status || '-')}</td><td>${this.escapeHtml(result.error_code || '-')}</td></tr>`).join('');
+            container.innerHTML = `<table><thead><tr><th>${i18n.t('model')}</th><th>${i18n.t('round')}</th><th>${i18n.t('firstTokenTime')}</th><th>${i18n.t('outputSpeed')}</th><th>${i18n.t('status')}</th><th>${i18n.t('error')}</th></tr></thead><tbody>${rows}</tbody></table>`;
+            container.dataset.loaded = 'true';
+        } catch (error) {
+            container.textContent = error.message;
+        }
     }
 
     async confirmClearCloudHistory() {
@@ -1135,6 +1320,7 @@ class APITester {
     // 渲染历史记录
     renderHistoryRecords() {
         const historyContent = document.getElementById('historyContent');
+        if (!historyContent) return;
         const history = this.getHistoryRecords();
         
         if (history.length === 0) {

@@ -37,6 +37,12 @@ class CloudHistoryClient {
         return data.runs || [];
     }
 
+    async getRun(id) {
+        if (!this.isConfigured()) return null;
+        const data = await this.request(`/api/runs/${encodeURIComponent(id)}?clientId=${encodeURIComponent(this.clientId)}`);
+        return data.run || null;
+    }
+
     async deleteRun(id) {
         return this.request(`/api/runs/${encodeURIComponent(id)}?clientId=${encodeURIComponent(this.clientId)}`, {
             method: 'DELETE'
@@ -47,6 +53,31 @@ class CloudHistoryClient {
         return this.request(`/api/runs?clientId=${encodeURIComponent(this.clientId)}`, {
             method: 'DELETE'
         });
+    }
+
+    async createShareReport(record) {
+        if (!this.isConfigured()) return null;
+        const modelStats = record.modelStats || {};
+        const report = {
+            models: record.testConfig.models,
+            promptsCount: record.testConfig.prompts.length,
+            rounds: record.testConfig.rounds,
+            totalTests: record.summary.totalTests,
+            successfulTests: record.summary.successfulTests,
+            recommendation: record.recommendation || '',
+            cost: record.cost || null,
+            modelStats
+        };
+        return this.request('/api/reports', {
+            method: 'POST',
+            body: { protocol: record.protocol, apiUrl: record.apiUrl, report }
+        });
+    }
+
+    async getShareReport(id) {
+        if (!this.isConfigured()) return null;
+        const data = await this.request(`/api/reports/${encodeURIComponent(id)}`);
+        return data.report || null;
     }
 
     async request(path, options = {}) {

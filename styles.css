@@ -259,6 +259,106 @@ textarea {
     opacity: 0.6;
 }
 
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.section-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.share-report-link {
+    max-width: min(34rem, 60vw);
+    overflow-wrap: anywhere;
+    font-size: 0.9rem;
+}
+
+.share-report-link a {
+    color: #4d5cc4;
+    text-decoration: underline;
+}
+
+.recommendation-panel {
+    margin: 0 0 1rem;
+    padding: 1rem 1.25rem;
+    border-left: 4px solid #16a085;
+    background: #eefaf6;
+    color: #1f5147;
+    border-radius: 5px;
+}
+
+.recommendation-panel strong {
+    color: #0e6b5b;
+}
+
+.cost-controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+    margin: 0 0 1.5rem;
+    background: #f8f9fa;
+    border: 1px solid #e1e5e9;
+    border-radius: 6px;
+}
+
+.cost-controls .form-group {
+    margin-bottom: 0;
+}
+
+.cost-controls .field-help {
+    grid-column: 1 / -1;
+    margin: 0;
+}
+
+@media (max-width: 640px) {
+    .cost-controls {
+        grid-template-columns: 1fr;
+    }
+}
+
+.shared-report-meta {
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+.shared-report-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.shared-report-table th,
+.shared-report-table td {
+    padding: 0.7rem;
+    border-bottom: 1px solid #e1e5e9;
+    text-align: left;
+}
+
+.back-to-tester {
+    display: inline-block;
+    margin-top: 1rem;
+    color: #4d5cc4;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.rank-badge {
+    display: inline-block;
+    min-width: 2rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    background: #eef1ff;
+    color: #4d5cc4;
+    text-align: center;
+    font-weight: 700;
+}
+
 .btn-secondary {
     background: #eef1ff;
     color: #4f5fc4;
@@ -360,6 +460,44 @@ textarea {
 .cloud-history-record h3 {
     color: #4f5fc4;
     margin-bottom: 0.5rem;
+}
+
+.cloud-record-toggle {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #4f5fc4;
+    text-align: left;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.cloud-record-toggle:hover,
+.cloud-record-toggle:focus-visible {
+    color: #26399e;
+    text-decoration: underline;
+}
+
+.cloud-run-details {
+    margin: 0.9rem 0;
+    overflow-x: auto;
+}
+
+.cloud-run-details table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.cloud-run-details th,
+.cloud-run-details td {
+    padding: 0.55rem;
+    border-bottom: 1px solid #e1e5e9;
+    text-align: left;
+    white-space: nowrap;
 }
 
 .cloud-history-record .summary-stats {

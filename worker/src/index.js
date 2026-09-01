@@ -12,7 +12,7 @@ export default {
         }
 
         if (!url.pathname.startsWith('/api/')) {
-            return json({ error: 'Not found' }, 404, headers);
+            return env.ASSETS.fetch(request);
         }
 
         try {
@@ -32,6 +32,15 @@ export default {
 
             if (url.pathname === '/api/runs' && request.method === 'DELETE') {
                 return await deleteRuns(env, clientId, headers);
+            }
+
+            if (url.pathname === '/api/reports' && request.method === 'POST') {
+                return await createSharedReport(request, env, headers);
+            }
+
+            const reportMatch = url.pathname.match(/^\/api\/reports\/([A-Za-z0-9_-]+)$/);
+            if (reportMatch && request.method === 'GET') {
+                return await getSharedReport(env, reportMatch[1], headers);
             }
 
             const runMatch = url.pathname.match(/^\/api\/runs\/([^/]+)$/);
@@ -193,6 +202,76 @@ async function listRuns(env, clientId, url, headers) {
     }, 200, headers);
 }
 
+async function createSharedReport(request, env, headers) {
+    const body = await request.json();
+    const protocol = String(body.protocol || '').trim().slice(0, 32);
+    const endpointHost = safeEndpointHost(body.apiUrl);
+    const report = body.report && typeof body.report === 'object' ? body.report : null;
+    if (!protocol || !endpointHost || !report) {
+        return json({ error: 'protocol, apiUrl, and report are required' }, 400, headers);
+    }
+
+    const models = Array.isArray(report.models)
+        ? report.models.map(model => String(model).trim().slice(0, 200)).filter(Boolean).slice(0, 100)
+        : [];
+    const modelStats = report.modelStats && typeof report.modelStats === 'object'
+        ? report.modelStats
+        : {};
+    const sanitizedStats = {};
+    Object.keys(modelStats).slice(0, 100).forEach(model => {
+        const stats = modelStats[model] || {};
+        sanitizedStats[String(model).slice(0, 200)] = {
+            avgFirstTokenTime: finiteNumber(stats.avgFirstTokenTime),
+            avgOutputSpeed: finiteNumber(stats.avgOutputSpeed),
+            successRate: finiteNumber(stats.successRate),
+            totalTests: clampInteger(stats.totalTests, 0, 100000),
+            successfulTests: clampInteger(stats.successfulTests, 0, 100000),
+            inputTokens: clampInteger(stats.inputTokens, 0, 1000000000),
+            outputTokens: clampInteger(stats.outputTokens, 0, 1000000000),
+            estimatedCost: finiteNumber(stats.estimatedCost),
+            score: finiteNumber(stats.score),
+            rank: clampInteger(stats.rank, 0, 100)
+        };
+    });
+
+    const reportPayload = {
+        models,
+        promptsCount: clampInteger(report.promptsCount, 0, 10000),
+        rounds: clampInteger(report.rounds, 1, 100),
+        totalTests: clampInteger(report.totalTests, 0, 100000),
+        successfulTests: clampInteger(report.successfulTests, 0, 100000),
+        recommendation: String(report.recommendation || '').slice(0, 200),
+        cost: sanitizeCost(report.cost),
+        modelStats: sanitizedStats
+    };
+    const id = crypto.randomUUID().replace(/-/g, '').slice(0, 16);
+    await env.DB.prepare(`
+        INSERT INTO shared_reports (id, created_at, protocol, endpoint_host, report_json)
+        VALUES (?, ?, ?, ?, ?)
+    `).bind(id, new Date().toISOString(), protocol, endpointHost, JSON.stringify(reportPayload)).run();
+
+    return json({ id }, 201, headers);
+}
+
+async function getSharedReport(env, id, headers) {
+    const row = await env.DB.prepare(`
+        SELECT id, created_at, protocol, endpoint_host, report_json
+        FROM shared_reports
+        WHERE id = ?
+    `).bind(id).first();
+    if (!row) return json({ error: 'Report not found' }, 404, headers);
+
+    return json({
+        report: {
+            id: row.id,
+            createdAt: row.created_at,
+            protocol: row.protocol,
+            endpointHost: row.endpoint_host,
+            ...parseJsonObject(row.report_json)
+        }
+    }, 200, headers);
+}
+
 async function getRun(env, clientId, runId, headers) {
     const run = await findOwnedRun(env, clientId, runId);
     if (!run) return json({ error: 'Run not found' }, 404, headers);
@@ -282,11 +361,34 @@ function sanitizeErrorCode(value) {
     return String(value || '').replace(/[^a-zA-Z0-9_.:-]/g, '').slice(0, 80) || null;
 }
 
+function sanitizeCost(value) {
+    if (!value || typeof value !== 'object') return null;
+    const inputPrice = finiteNonNegative(value.inputPrice);
+    const outputPrice = finiteNonNegative(value.outputPrice);
+    const estimatedTotalCost = finiteNonNegative(value.estimatedTotalCost);
+    if (inputPrice == null || outputPrice == null || estimatedTotalCost == null) return null;
+    return { inputPrice, outputPrice, estimatedTotalCost, configured: Boolean(value.configured) };
+}
+
+function finiteNonNegative(value) {
+    const number = Number(value);
+    return Number.isFinite(number) && number >= 0 ? number : null;
+}
+
 function parseJsonArray(value) {
     try {
         const parsed = JSON.parse(value);
         return Array.isArray(parsed) ? parsed : [];
     } catch {
         return [];
+    }
+}
+
+function parseJsonObject(value) {
+    try {
+        const parsed = JSON.parse(value);
+        return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+    } catch {
+        return {};
     }
 }

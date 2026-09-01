@@ -1,6 +1,6 @@
 # Cloudflare Worker + D1
 
-This Worker stores anonymous cloud performance history for the GitHub Pages app.
+This Worker serves the static frontend and stores anonymous cloud performance history in D1.
 It deliberately stores endpoint hosts and performance metrics only. API keys,
 raw prompts, and model responses are not persisted.
 
@@ -19,16 +19,16 @@ raw prompts, and model responses are not persisted.
    npx wrangler d1 create llm_api
    ```
 
-3. Set `ALLOWED_ORIGIN` in `wrangler.toml` to the exact GitHub Pages origin.
+3. Set `account_id`, `ALLOWED_ORIGIN`, and the D1 `database_id` in `wrangler.toml`.
 
-4. Initialize the schema and deploy:
+4. Initialize the schema and deploy the frontend plus API:
 
    ```bash
    npx wrangler d1 execute llm_api --remote --file=schema.sql
    npx wrangler deploy
    ```
 
-5. Enter the deployed Worker URL in the app's Cloud API URL field, for example
+5. Open the deployed Worker URL, for example
    `https://llm-api-test-history.example.workers.dev`.
 
 The Worker exposes `GET`, `POST`, and `DELETE` routes under `/api/runs`.
